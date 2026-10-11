@@ -50,6 +50,9 @@ export const useAppStore = defineStore("app", {
     },
   },
   actions: {
+    setLimit(limit: number) {
+      this.paginate.limit = limit;
+    },
     nextPage() {
       if (this.paginate.currentPage  < this.totalPages) {
         this.paginate.currentPage++;

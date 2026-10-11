@@ -6,7 +6,7 @@ const props = withDefaults(
     options: Option<T>[];
     direction?: "bottom" | "top";
     alignment?: "left" | "right" | "center";
-    textAlign?: "left" | "right" | "center";
+    textStyles?: string;
     isSearchable?: boolean;
     searchInputPlaceholder?: string;
     showAllOptions?: boolean;
@@ -16,10 +16,9 @@ const props = withDefaults(
     direction: "bottom",
     showAllOptions: true,
     alignment: "center",
-    textAlign: "center",
   },
 );
-defineEmits<{ (e: "update:modelValue", val: Option<T>): void }>();
+const emits = defineEmits<{ (e: "update:modelValue", val: Option<T>): void }>();
 
 const searchText = ref("");
 function clearSearch() {
@@ -32,15 +31,22 @@ function toggleIsOpen() {
 }
 
 const filteredOptions = computed(() => {
-  if (!props.showAllOptions) return props.options.filter((option) => option.name !== props.modelValue.name);
+  if (!props.showAllOptions)
+    return props.options.filter(
+      (option) => option.name !== props.modelValue.name,
+    );
   return props.options;
 });
 
+function setDropdownOption(option: Option<T>) {
+  emits('update:modelValue', option);
+  isDropdownOpen.value = false;
+}
 
 const dropdownMenuRef = useTemplateRef("dropdown");
 onClickOutside(dropdownMenuRef, () => {
   isDropdownOpen.value = false;
-})
+});
 </script>
 
 <template>
@@ -52,7 +58,11 @@ onClickOutside(dropdownMenuRef, () => {
       @click="toggleIsOpen()"
     >
       {{ modelValue.name }}
-      <Icon name="tabler:chevron-down" size="18" :class="{'rotate-180': isDropdownOpen}" />
+      <Icon
+        name="tabler:chevron-down"
+        size="18"
+        :class="{ 'rotate-180': isDropdownOpen }"
+      />
     </button>
 
     <div
@@ -65,7 +75,6 @@ onClickOutside(dropdownMenuRef, () => {
           'right-0': alignment === 'right',
           'left-0': alignment === 'left',
           'left-1/2 -translate-x-1/2': alignment === 'center',
-          
         },
       ]"
     >
@@ -88,14 +97,15 @@ onClickOutside(dropdownMenuRef, () => {
         v-for="(option, index) in filteredOptions"
         :key="`${id}-${index}`"
         :class="[
-          `flex items-center gap-x-1 text-sm px-3 py-0.5 rounded-md text-${textAlign}`,
+          `flex items-center gap-x-1 px-3 py-0.5 rounded-md`,
+          textStyles,
           {
             'bg-neutral-200': modelValue.name === option.name,
             'hover:bg-neutral-100': modelValue.name !== option.name,
           },
         ]"
         :disabled="modelValue.name === option.name"
-        @click="$emit('update:modelValue', option)"
+        @click="setDropdownOption(option)"
       >
         <Icon v-if="option.icon" v-bind="option.icon" />
         {{ option.name }}

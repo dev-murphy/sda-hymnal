@@ -24,7 +24,12 @@
       "author": "Joachim Neander",
       "first_line": "Praise to the Lord, the Almighty, the King of creation",
       "published_at": 1985,
-      "key": "F Major"
+      "key": "F Major",
+      "timestamps": [
+        [20.03, 31.88, 42.38, 51.47],
+        [59.64, 70.46, 81.19, 91.03],
+        [99.02, 109.79, 121.01, 130.57]
+      ]
     },
     {
       "hymn_number": 2,
