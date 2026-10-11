@@ -6,4 +6,8 @@ export type SortOrder = 'asc' | 'desc';
 export type Option<T> = {
   name: string;
   value: T;
+  icon?: {
+    name: string;
+    size: string;
+  }
 }
