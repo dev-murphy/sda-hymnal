@@ -1,7 +1,14 @@
 {
   "name": "sda-hymns",
+  "version": "0.0.1",
+  "description": "Seventh-Day Hymn website built for easy and convenience",
+  "author": "Murphy Facey <facey.murphy1@gmail.com>",
   "type": "module",
   "private": true,
+  "repo": {
+    "type": "git",
+    "url": "https://github.com/dev-murphy/sda-hymns"
+  },
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
