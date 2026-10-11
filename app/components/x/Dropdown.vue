@@ -1,12 +1,12 @@
-<script lang="ts" setup>
-import type { Option } from "~/types";
-
+<script lang="ts" setup generic="T">
 const props = withDefaults(
   defineProps<{
     id: string;
-    modelValue: Option<number>;
-    options: Option<number>[];
+    modelValue: Option<T>;
+    options: Option<T>[];
     direction?: "bottom" | "top";
+    alignment?: "left" | "right" | "center";
+    textAlign?: "left" | "right" | "center";
     isSearchable?: boolean;
     searchInputPlaceholder?: string;
     showAllOptions?: boolean;
@@ -15,9 +15,11 @@ const props = withDefaults(
     isSearchable: false,
     direction: "bottom",
     showAllOptions: true,
+    alignment: "center",
+    textAlign: "center",
   },
 );
-defineEmits<{ (e: "update:modelValue", val: Option<number>): void }>();
+defineEmits<{ (e: "update:modelValue", val: Option<T>): void }>();
 
 const searchText = ref("");
 function clearSearch() {
@@ -43,7 +45,9 @@ onClickOutside(dropdownMenuRef, () => {
 
 <template>
   <div ref="dropdown" class="relative">
+    <slot v-if="$slots.default" :trigger-event="toggleIsOpen" />
     <button
+      v-else
       class="w-fit flex items-center gap-x-1 border border-neutral-300 font-[Archivo] text-sm px-2 py-1.5 select-none shadow cursor-pointer rounded-md"
       @click="toggleIsOpen()"
     >
@@ -54,10 +58,14 @@ onClickOutside(dropdownMenuRef, () => {
     <div
       v-if="isDropdownOpen"
       :class="[
-        'w-fit absolute bg-white flex flex-col gap-y-0.5 border border-neutral-100 p-1 shadow-md rounded-lg',
+        'w-max absolute bg-white z-10 flex flex-col gap-y-0.5 border border-neutral-100 p-1 shadow-md rounded-lg',
         {
           'bottom-full -translate-y-1': direction === 'top',
           'top-full translate-y-1': direction === 'bottom',
+          'right-0': alignment === 'right',
+          'left-0': alignment === 'left',
+          'left-1/2 -translate-x-1/2': alignment === 'center',
+          
         },
       ]"
     >
@@ -80,7 +88,7 @@ onClickOutside(dropdownMenuRef, () => {
         v-for="(option, index) in filteredOptions"
         :key="`${id}-${index}`"
         :class="[
-          'text-sm px-3 py-0.5 rounded-md',
+          `flex items-center gap-x-1 text-sm px-3 py-0.5 rounded-md text-${textAlign}`,
           {
             'bg-neutral-200': modelValue.name === option.name,
             'hover:bg-neutral-100': modelValue.name !== option.name,
@@ -89,6 +97,7 @@ onClickOutside(dropdownMenuRef, () => {
         :disabled="modelValue.name === option.name"
         @click="$emit('update:modelValue', option)"
       >
+        <Icon v-if="option.icon" v-bind="option.icon" />
         {{ option.name }}
       </button>
     </div>

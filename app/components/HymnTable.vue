@@ -30,9 +30,17 @@ const perPage = ref<Option<number>[]>([
 ]);
 const selected = ref(perPage.value[0]!);
 
-// function setSelectedOption(option: Option<number>) {
-//   selected.value = 
-// }
+const menu = ref([
+  {
+    name: "Present",
+    value: "present",
+  },
+  {
+    name: "Like",
+    value: "favorite",
+  }
+]);
+const selectedMenuOption = ref(menu.value[0]!);
 </script>
 
 <template>
@@ -45,7 +53,7 @@ const selected = ref(perPage.value[0]!);
     >
       {{ appStore.selectedCategory }} <Icon name="tabler:x" size="15" />
     </p>
-    <div class="border border-neutral-200 rounded-xl overflow-hidden">
+    <div class="min-h-[602px] border border-neutral-200 rounded-xl overflow-hidden">
       <table class="w-full table-fixed font-[Spectral]">
         <thead class="font-[Archivo]">
           <tr class="bg-neutral-100 text-left">
@@ -81,8 +89,9 @@ const selected = ref(perPage.value[0]!);
             <th class="w-36">Actions</th>
           </tr>
         </thead>
+        
         <tbody>
-          <tr v-for="hymn in appStore.renderredPages">
+          <tr v-for="(hymn, index) in appStore.renderredPages">
             <td class="text-2xl text-center font-bold">
               {{ hymn?.hymn_number }}
             </td>
@@ -112,27 +121,32 @@ const selected = ref(perPage.value[0]!);
             </td>
             <td class="font-serif">{{ hymn?.key }}</td>
             <td>
-              <div class="flex items-center gap-x-1">
-                <button
-                  class="flex items-center gap-x-1.5 border border-neutral-300 px-1.5 py-0.5 text-neutral-700 font-[Archivo] text-sm rounded-md transition-all shadow hover:shadow-md"
-                >
+              <div class="flex items-center gap-x-2">
+                <XButton size="sm" buttonText="Play">
                   <Icon
                     name="solar:play-bold"
                     size="14"
                     class="text-neutral-300"
                   />
-                  Play
-                </button>
-                <button
-                  class="flex items-center gap-x-1.5 border border-neutral-300 px-1.5 py-0.5 text-neutral-700 font-[Archivo] text-sm rounded-md transition-all shadow hover:shadow-md"
+                </XButton>
+
+                <XDropdown
+                  id="hymn-menu"
+                  v-model="selectedMenuOption"
+                  :options="menu"
+                  alignment="right"
+                  text-align="left"
+                  :direction="(appStore.paginate.limit - index < 3 && appStore.renderredPages.length > 8) ? 'top': 'bottom'"
                 >
-                  <Icon
-                    name="tabler:arrows-diagonal"
-                    size="14"
-                    class="text-neutral-300"
-                  />
-                  View
-                </button>
+                  <template #default="{ triggerEvent }">
+                    <XButton size="sm" @click="triggerEvent()"
+                      ><Icon
+                        name="tabler:dots"
+                        size="14"
+                        class="text-neutral-300"
+                    /></XButton>
+                  </template>
+                </XDropdown>
               </div>
             </td>
           </tr>
@@ -141,8 +155,13 @@ const selected = ref(perPage.value[0]!);
     </div>
 
     <!-- Pagination -->
-    <div class="flex items-center mt-4">
-      <XDropdown id="opt" v-model="selected" :options="perPage" direction="top" />
+    <div class="flex items-center justify-end gap-x-3 mt-4">
+      <XDropdown
+        id="opt"
+        v-model="selected"
+        :options="perPage"
+        direction="top"
+      />
       <div class="flex gap-x-3">
         <XButton
           button-text="Prev"
