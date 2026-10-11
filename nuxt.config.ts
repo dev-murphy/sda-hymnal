@@ -1,6 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  modules: ['@nuxt/icon/module', '@nuxt/fonts', '@nuxtjs/tailwindcss', '@pinia/nuxt'],
+  modules: ['@nuxt/icon/module', '@nuxt/fonts', '@nuxtjs/tailwindcss', '@pinia/nuxt', '@vueuse/nuxt/module'],
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   // Icons

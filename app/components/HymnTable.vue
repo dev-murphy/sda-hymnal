@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { useAppStore } from "~/stores/app";
+import type { Option } from "~/types";
 
 const appStore = useAppStore();
 
@@ -12,6 +13,26 @@ function setSort(sort: string) {
 
   appStore.setSort(sort, "asc");
 }
+
+const perPage = ref<Option<number>[]>([
+  {
+    name: "10 / page",
+    value: 10,
+  },
+  {
+    name: "15 / page",
+    value: 15,
+  },
+  {
+    name: "20 / page",
+    value: 20,
+  },
+]);
+const selected = ref(perPage.value[0]!);
+
+// function setSelectedOption(option: Option<number>) {
+//   selected.value = 
+// }
 </script>
 
 <template>
@@ -120,8 +141,9 @@ function setSort(sort: string) {
     </div>
 
     <!-- Pagination -->
-    <div>
-      <div class="flex gap-x-3 mt-4">
+    <div class="flex items-center mt-4">
+      <XDropdown id="opt" v-model="selected" :options="perPage" direction="top" />
+      <div class="flex gap-x-3">
         <XButton
           button-text="Prev"
           type="raised"
