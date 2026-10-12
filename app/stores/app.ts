@@ -5,6 +5,11 @@ import type { HymnData, SortOrder } from "~/types";
 export const useAppStore = defineStore("app", {
   state: () => ({
     hymns: data,
+    visibility: {
+      author: true,
+      composer: true,
+      key: true
+    },
     paginate: {
       sort: 'number',
       order: 'asc' as SortOrder,
@@ -33,6 +38,18 @@ export const useAppStore = defineStore("app", {
         }
         if (state.paginate.sort === 'title' && state.paginate.order === 'desc') {
           return b.title.localeCompare(a.title);
+        }
+        if (state.paginate.sort === 'author' && state.paginate.order === 'asc') {
+          return a.author!.localeCompare(b.author!);
+        }
+        if (state.paginate.sort === 'author' && state.paginate.order === 'desc') {
+          return b.author!.localeCompare(a.author!);
+        }
+        if (state.paginate.sort === 'composer' && state.paginate.order === 'asc') {
+          return a.composer!.localeCompare(b.composer!);
+        }
+        if (state.paginate.sort === 'composer' && state.paginate.order === 'desc') {
+          return b.composer!.localeCompare(a.composer!);
         }
         if (state.paginate.sort === 'number' && state.paginate.order === 'desc') {
           return b.hymn_number - a.hymn_number;
@@ -74,6 +91,19 @@ export const useAppStore = defineStore("app", {
     setSubCategory(subcategory: string) {
       this.paginate.currentPage = 1;
       this.paginate.filter.subcategory = subcategory;
+    },
+    toggleVisibility(columnName: 'author' | 'composer' | 'key') {
+      if (columnName === 'author') {
+        this.visibility.author = !this.visibility.author;
+      }
+
+      if (columnName === 'composer') {
+        this.visibility.composer = !this.visibility.composer;
+      }
+
+      if (columnName === 'key') {
+        this.visibility.key = !this.visibility.key;
+      }
     }
   },
 });
