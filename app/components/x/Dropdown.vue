@@ -51,7 +51,7 @@ onClickOutside(dropdownMenuRef, () => {
 
 <template>
   <div ref="dropdown" class="relative">
-    <slot v-if="$slots.default" :trigger-event="toggleIsOpen" />
+    <slot v-if="$slots.default" :is-open="isDropdownOpen" :trigger-event="toggleIsOpen" />
     <button
       v-else
       class="w-fit flex items-center gap-x-1 border border-neutral-300 font-[Archivo] text-sm px-2 py-1.5 select-none shadow cursor-pointer rounded-md"
@@ -68,7 +68,7 @@ onClickOutside(dropdownMenuRef, () => {
     <div
       v-if="isDropdownOpen"
       :class="[
-        'w-max absolute bg-white z-10 flex flex-col gap-y-0.5 border border-neutral-100 p-1 shadow-md rounded-lg',
+        'w-max absolute bg-white z-[100] flex flex-col gap-y-0.5 border border-neutral-100 p-1 shadow-md rounded-lg',
         {
           'bottom-full -translate-y-1': direction === 'top',
           'top-full translate-y-1': direction === 'bottom',
