@@ -3,6 +3,7 @@ export default defineNuxtConfig({
   modules: ['@nuxt/icon/module', '@nuxt/fonts', '@nuxtjs/tailwindcss', '@pinia/nuxt', '@vueuse/nuxt/module'],
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
+  css: ["~/assets/css/main.css"],
   // Icons
   icon: {
     mode: "css",
