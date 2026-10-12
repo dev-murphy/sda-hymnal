@@ -45,6 +45,10 @@ const menu = ref([
     name: "Like",
     value: "favorite",
   },
+  {
+    name: "Share",
+    value: "share",
+  },
 ]);
 const selectedMenuOption = ref(menu.value[0]!);
 
@@ -122,8 +126,32 @@ function scrollToTop() {
                   }}
                 </div>
               </th>
-              <th class="w-24">Key</th>
-              <th class="w-36">Actions</th>
+              <th v-if="appStore.visibility.author" class="w-52">
+                <div
+                  class="flex items-center justify-center gap-x-1 select-none"
+                  @click="setSort('author')"
+                >
+                  Author
+                  <SortIndicator
+                    :is-sorted="appStore.paginate.sort !== 'author'"
+                    :order="appStore.paginate.order"
+                  />
+                </div>
+              </th>
+              <th v-if="appStore.visibility.composer" class="w-52">
+                <div
+                  class="flex items-center justify-center gap-x-1 select-none"
+                  @click="setSort('composer')"
+                >
+                  Composer
+                  <SortIndicator
+                    :is-sorted="appStore.paginate.sort !== 'composer'"
+                    :order="appStore.paginate.order"
+                  />
+                </div>
+              </th>
+              <th v-if="appStore.visibility.key" class="w-24">Key</th>
+              <th class="w-28">Actions</th>
             </tr>
           </thead>
 
@@ -135,7 +163,9 @@ function scrollToTop() {
               <td class="py-1.5">
                 <div class="font-[Archivo]">
                   {{ hymn?.title }}
-                  <span class="block text-sm text-neutral-400 font-[Spectral]">
+                  <span
+                    class="w-[80%] block text-sm text-neutral-400 font-[Spectral] truncate"
+                  >
                     {{ hymn?.first_line }}
                   </span>
                 </div>
@@ -156,7 +186,9 @@ function scrollToTop() {
                   {{ hymn?.subcategory }}
                 </button>
               </td>
-              <td class="font-serif">{{ hymn?.key }}</td>
+              <td v-if="appStore.visibility.author">{{ hymn?.author }}</td>
+              <td v-if="appStore.visibility.composer">{{ hymn?.composer }}</td>
+              <td v-if="appStore.visibility.key" class="font-serif">{{ hymn?.key }}</td>
               <td>
                 <div class="flex items-center gap-x-2">
                   <XButton size="sm" buttonText="Play">
@@ -216,14 +248,15 @@ function scrollToTop() {
     </div>
 
     <!-- Pagination -->
-    <div class="flex items-center justify-end gap-x-3 mt-4">
+    <div class="flex items-center justify-end gap-x-1 mt-4">
+      <p>Items: </p>
       <XDropdown
         id="opt"
         v-model="selected"
         :options="perPage"
         direction="top"
       />
-      <div class="flex gap-x-3">
+      <div class="flex gap-x-3 ml-2">
         <XButton
           button-text="Prev"
           type="raised"
