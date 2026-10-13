@@ -128,7 +128,7 @@ function scrollToTop() {
               </th>
               <th v-if="appStore.visibility.author" class="w-52">
                 <div
-                  class="flex items-center justify-center gap-x-1 select-none"
+                  class="flex items-center gap-x-1 select-none"
                   @click="setSort('author')"
                 >
                   Author
@@ -140,7 +140,7 @@ function scrollToTop() {
               </th>
               <th v-if="appStore.visibility.composer" class="w-52">
                 <div
-                  class="flex items-center justify-center gap-x-1 select-none"
+                  class="flex items-center gap-x-1 select-none"
                   @click="setSort('composer')"
                 >
                   Composer
