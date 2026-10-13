@@ -188,7 +188,9 @@ function scrollToTop() {
               </td>
               <td v-if="appStore.visibility.author">{{ hymn?.author }}</td>
               <td v-if="appStore.visibility.composer">{{ hymn?.composer }}</td>
-              <td v-if="appStore.visibility.key" class="font-serif">{{ hymn?.key }}</td>
+              <td v-if="appStore.visibility.key">
+                {{ hymn?.key }}
+              </td>
               <td>
                 <div class="flex items-center gap-x-2">
                   <XButton size="sm" buttonText="Play">
@@ -249,7 +251,7 @@ function scrollToTop() {
 
     <!-- Pagination -->
     <div class="flex items-center justify-end gap-x-1 mt-4">
-      <p>Items: </p>
+      <p>Items:</p>
       <XDropdown
         id="opt"
         v-model="selected"
