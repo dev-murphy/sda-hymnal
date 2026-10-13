@@ -32,31 +32,26 @@ export const useAppStore = defineStore("app", {
         state.paginate.currentPage * this.paginate.limit,
       )
 
-      return paginatedHymns.sort((a, b) => {
-        if (state.paginate.sort === 'title' && state.paginate.order === 'asc') {
-          return a.title.localeCompare(b.title);
-        }
-        if (state.paginate.sort === 'title' && state.paginate.order === 'desc') {
-          return b.title.localeCompare(a.title);
-        }
-        if (state.paginate.sort === 'author' && state.paginate.order === 'asc') {
-          return a.author!.localeCompare(b.author!);
-        }
-        if (state.paginate.sort === 'author' && state.paginate.order === 'desc') {
-          return b.author!.localeCompare(a.author!);
-        }
-        if (state.paginate.sort === 'composer' && state.paginate.order === 'asc') {
-          return a.composer!.localeCompare(b.composer!);
-        }
-        if (state.paginate.sort === 'composer' && state.paginate.order === 'desc') {
-          return b.composer!.localeCompare(a.composer!);
-        }
-        if (state.paginate.sort === 'number' && state.paginate.order === 'desc') {
-          return b.hymn_number - a.hymn_number;
-        }
+      const direction = state.paginate.order === 'desc' ? -1 : 1;
 
-        // defaults to hymn_number descending order
-        return a.hymn_number - b.hymn_number;
+      const compareText = (a?: string, b?: string) => {
+        if (!a && !b) return 0;
+        if (!a) return 1;
+        if (!b) return -1;
+        return a.localeCompare(b) * direction;
+      };
+
+      return paginatedHymns.sort((a, b) => {
+        switch (state.paginate.sort) {
+          case 'title':
+            return compareText(a.title, b.title);
+          case 'author':
+            return compareText(a.author, b.author);
+          case 'composer':
+            return compareText(a.composer, b.composer);
+          default:
+            return (a.hymn_number - b.hymn_number) * direction;
+        }
       })
     },
     selectedCategory(state) {
