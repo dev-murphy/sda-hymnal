@@ -151,7 +151,7 @@ function scrollToTop() {
                 </div>
               </th>
               <th v-if="appStore.visibility.key" class="w-24">Key</th>
-              <th class="w-28">Actions</th>
+              <th class="w-32">Actions</th>
             </tr>
           </thead>
 
@@ -193,8 +193,27 @@ function scrollToTop() {
               </td>
               <td>
                 <div class="flex items-center gap-x-2">
-                  <XButton size="sm" buttonText="Play">
+                  <XButton
+                    size="sm"
+                    :buttonText="
+                      appStore.isPlaying &&
+                      appStore.selectedHymn === hymn?.hymn_number
+                        ? 'Pause'
+                        : 'Play'
+                    "
+                    @click="appStore.togglePlayHymn(hymn!.hymn_number)"
+                  >
                     <Icon
+                      v-if="
+                        appStore.isPlaying &&
+                        appStore.selectedHymn === hymn?.hymn_number
+                      "
+                      name="solar:pause-bold"
+                      size="14"
+                      class="text-neutral-300"
+                    />
+                    <Icon
+                      v-else
                       name="solar:play-bold"
                       size="14"
                       class="text-neutral-300"

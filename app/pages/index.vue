@@ -166,6 +166,7 @@ const selectedOptions = ref(options.value[0]!);
     </div>
 
     <HymnTable />
+    <AudioPlayer />
   </div>
 </template>
 

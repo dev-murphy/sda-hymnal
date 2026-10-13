@@ -5,6 +5,8 @@ import type { HymnData, SortOrder } from "~/types";
 export const useAppStore = defineStore("app", {
   state: () => ({
     hymns: data,
+    selectedHymn: null as number | null,
+    isPlaying: false,
     visibility: {
       author: true,
       composer: true,
@@ -23,6 +25,9 @@ export const useAppStore = defineStore("app", {
     },
   }),
   getters: {
+    getSelectedHymn(state) {
+      return state.hymns.find((hymn) => hymn.hymn_number === state.selectedHymn);
+    },
     filteredHymns(state) {
      return state.paginate.filter.category !== '' ? state.hymns.filter((hymn) => hymn.category === state.paginate.filter.category) : state.hymns;
     }, 
@@ -98,6 +103,30 @@ export const useAppStore = defineStore("app", {
 
       if (columnName === 'key') {
         this.visibility.key = !this.visibility.key;
+      }
+    },
+    setCurrentlyPlayedHymns(hymnNumber: number | null) {
+      this.selectedHymn = hymnNumber;
+      this.isPlaying = hymnNumber !== null;
+    },
+    togglePlayHymn(hymnNumber: number) {
+      if (this.selectedHymn === hymnNumber) {
+        this.isPlaying = !this.isPlaying;
+      } else {
+        this.setCurrentlyPlayedHymns(hymnNumber);
+      }
+    },
+    setIsPlaying(value: boolean) {
+      this.isPlaying = value;
+    },
+    nextHymn() {
+      if (this.selectedHymn !== null && this.selectedHymn < 695) {
+        this.selectedHymn = this.selectedHymn + 1;
+      }
+    },
+    prevHymn() {
+      if (this.selectedHymn !== null && this.selectedHymn > 1) {
+        this.selectedHymn = this.selectedHymn - 1;
       }
     }
   },
