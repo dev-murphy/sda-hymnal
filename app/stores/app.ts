@@ -7,6 +7,7 @@ export const useAppStore = defineStore("app", {
     hymns: data,
     selectedHymn: null as number | null,
     isPlaying: false,
+    fontSize: 16,
     visibility: {
       author: true,
       composer: true,
@@ -61,6 +62,10 @@ export const useAppStore = defineStore("app", {
     },
     selectedCategory(state) {
       return state.paginate.filter.category;
+    },
+    // stanza labels stay proportionally smaller than the text (14px at the default 16px)
+    stanzaLabelFontSize(state): number {
+      return state.fontSize * 0.875;
     },
     totalPages(state): number {
       return Math.ceil(this.filteredHymns.length / state.paginate.limit);
@@ -140,6 +145,16 @@ export const useAppStore = defineStore("app", {
       if (this.selectedHymn !== null && this.selectedHymn < 695) {
         this.selectedHymn = this.selectedHymn + 1;
       }
+    },
+    setFontSize(size: number) {
+      if (isNaN(size)) return;
+      this.fontSize = Math.min(Math.max(Math.round(size), 12), 48);
+    },
+    increaseFontSize() {
+      this.setFontSize(this.fontSize + 2);
+    },
+    decreaseFontSize() {
+      this.setFontSize(this.fontSize - 2);
     },
     prevHymn() {
       if (this.selectedHymn !== null && this.selectedHymn > 1) {
