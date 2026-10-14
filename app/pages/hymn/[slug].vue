@@ -83,7 +83,7 @@ onUnmounted(() => {
           <div class="flex items-center gap-x-2 text-sm ml-auto">
             <NuxtLink
               v-if="appStore.previousHymn(getHymnNo)"
-              :to="`${getHymnNo - 1}-${slugify(appStore.nextHymn(getHymnNo)?.title)}`"
+              :to="`${getHymnNo - 1}-${slugify(appStore.previousHymn(getHymnNo)?.title)}`"
               class="w-fit flex items-center gap-x-2 px-2 py-0.5 border border-neutral-200 rounded-md"
             >
               <Icon name="tabler:arrow-left" size="16" />
