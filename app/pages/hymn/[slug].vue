@@ -56,6 +56,12 @@ const onFontSizeChange = (event: Event) => {
   input.value = String(appStore.fontSize);
 };
 
+const { y: scrollY } = useWindowScroll({ behavior: "smooth" });
+
+function scrollToTop() {
+  scrollY.value = 0;
+}
+
 onUnmounted(() => {
   appStore.setCurrentlyPlayedHymns(null);
 });
@@ -233,6 +239,17 @@ onUnmounted(() => {
         <p class="whitespace-pre" :style="{ fontSize: `${appStore.fontSize}px` }">{{ stanza.text }}</p>
       </div>
     </div>
+
+    <Transition name="fade">
+      <button
+        v-if="scrollY > 200"
+        class="fixed bottom-20 right-6 z-50 grid place-items-center p-2 bg-white border border-neutral-300 shadow-md rounded-full"
+        aria-label="Scroll to top"
+        @click="scrollToTop"
+      >
+        <Icon name="tabler:arrow-up" size="20" />
+      </button>
+    </Transition>
 
     <div
       class="sticky bottom-0 bg-white flex items-center justify-between mt-2 border-t border-neutral-300"
