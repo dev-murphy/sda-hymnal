@@ -221,7 +221,7 @@ onUnmounted(() => {
     </div>
 
     <div
-      class="stanza grow space-y-4 overflow-y-auto"
+      class="stanza w-full max-w-[1024px] grow space-y-4 overflow-y-auto mx-auto"
       :style="selectedFont.style"
     >
       <div
