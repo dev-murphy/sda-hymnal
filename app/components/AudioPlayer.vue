@@ -29,10 +29,6 @@ const duration = ref(0);
 const volume = ref(50);
 const previousVolume = ref(50);
 
-const progress = computed(() => {
-  return duration.value ? (currentTime.value / duration.value) * 100 : 0;
-});
-
 function formatTime(s: number) {
   if (!isFinite(s) || isNaN(s)) return "0:00";
 
@@ -64,24 +60,12 @@ function toggleMute() {
   }
 }
 
-function seek(event: MouseEvent) {
+function seek(time: number) {
   const audio = audioRef.value;
   if (!audio || !duration.value) return;
 
-  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-
-  audio.currentTime =
-    Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width)) *
-    duration.value;
-}
-
-function updateVolume(event: MouseEvent) {
-  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-  if (!rect.width) return;
-
-  volume.value = Math.round(
-    Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width)) * 100,
-  );
+  audio.currentTime = time;
+  currentTime.value = time;
 }
 
 watch(volume, (value) => {
@@ -215,9 +199,11 @@ onUnmounted(() => {
         </p>
 
         <XRangeSlider
-          v-model="progress"
-          @trigger-event="seek"
+          :model-value="currentTime"
+          :max="duration"
           class="min-w-0 grow"
+          aria-label="Seek"
+          @update:model-value="seek"
         />
 
         <div class="flex shrink-0 items-center gap-x-1">
@@ -267,8 +253,10 @@ onUnmounted(() => {
 
             <XRangeSlider
               v-model="volume"
+              :min="0"
+              :max="100"
+              aria-label="Volume"
               class="absolute left-9 top-1/2 w-[100px] -translate-y-1/2 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100"
-              @trigger-event="updateVolume"
             />
           </div>
           <button
