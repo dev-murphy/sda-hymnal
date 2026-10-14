@@ -156,7 +156,7 @@ onUnmounted(() => {
     </div>
 
 
-    <div class="flex items-center justify-between py-5">
+    <div class="flex items-center justify-between py-2">
       <div class="w-full max-w-[1024px] flex items-center justify-between mx-auto">
         <AudioPlayer
           :hymn="hymn"
