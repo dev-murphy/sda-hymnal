@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import type { Option } from "~/types";
+
 const appStore = useAppStore();
 const route = useRoute();
 
@@ -32,6 +34,19 @@ const expandedHymns = computed(() => {
     if (stanza.type.startsWith("VERSE")) result.push(refrain);
   }
   return result;
+});
+
+const fontOptions: Option<string>[] = FONTS.map((font) => ({
+  name: font.name,
+  value: font.name,
+  style: { fontFamily: toFontFamily(font) },
+}));
+
+const selectedFont = computed({
+  get: () =>
+    fontOptions.find((font) => font.value === appStore.fontFamily) ??
+    fontOptions[0]!,
+  set: (font: Option<string>) => appStore.setFontFamily(font.value),
 });
 
 const onFontSizeChange = (event: Event) => {
@@ -151,6 +166,15 @@ onUnmounted(() => {
           manual-play
         />
         <div class="flex items-center gap-x-2">
+          <XDropdown
+            id="font-family"
+            v-model="selectedFont"
+            :options="fontOptions"
+            alignment="right"
+            text-styles="text-left text-sm"
+            is-searchable
+            search-input-placeholder="Search fonts"
+          />
           <XTooltip text="Font decrease">
             <template #default="{ triggerOpen, triggerClose }">
               <button
@@ -196,7 +220,10 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <div class="stanza grow space-y-4 font-[Archivo] overflow-y-auto">
+    <div
+      class="stanza grow space-y-4 overflow-y-auto"
+      :style="selectedFont.style"
+    >
       <div
         v-for="(stanza, index) in expandedHymns"
         :key="`${hymn.hymn_number}-verse-${index}`"

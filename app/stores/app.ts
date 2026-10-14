@@ -8,6 +8,7 @@ export const useAppStore = defineStore("app", {
     selectedHymn: null as number | null,
     isPlaying: false,
     fontSize: 16,
+    fontFamily: 'Archivo',
     visibility: {
       author: true,
       composer: true,
@@ -149,6 +150,9 @@ export const useAppStore = defineStore("app", {
     setFontSize(size: number) {
       if (isNaN(size)) return;
       this.fontSize = Math.min(Math.max(Math.round(size), 12), 48);
+    },
+    setFontFamily(fontFamily: string) {
+      this.fontFamily = fontFamily;
     },
     increaseFontSize() {
       this.setFontSize(this.fontSize + 2);

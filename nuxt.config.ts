@@ -1,4 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import { FONTS } from './app/utils/fonts'
+
 export default defineNuxtConfig({
   modules: ['@nuxt/icon/module', '@nuxt/fonts', '@nuxtjs/tailwindcss', '@pinia/nuxt', '@vueuse/nuxt/module'],
   compatibilityDate: '2025-07-15',
@@ -14,20 +16,12 @@ export default defineNuxtConfig({
   },
   // Fonts
   fonts: {
-    families: [
-      {
-        name: 'Spectral',
-        provider: 'google'
-      },
-      {
-        name: "Archivo",
-        provider: "google"
-      },
-      {
-        name: "Epilogue",
-        provider: "google",
-        weights: ['400', '700']
-      }
-    ]
+    families: FONTS.map((font) => ({
+      name: font.name,
+      provider: 'google',
+      // fonts are applied with inline styles, so they can't be auto-detected from CSS
+      global: true,
+      ...(font.weights && { weights: font.weights }),
+    }))
   }
 })
