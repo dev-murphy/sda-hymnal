@@ -1,4 +1,20 @@
 <script lang="ts" setup>
+const props = withDefaults(
+  defineProps<{
+    hymn?: HymnData[number];
+    type?: "inline" | "fixed";
+    hideExtraControls?: boolean;
+    hideTitle?: boolean;
+    manualPlay?: boolean;
+  }>(),
+  {
+    type: "fixed",
+    manualPlay: false,
+    hideExtraControls: false,
+    hideTitle: false,
+  },
+);
+
 const appStore = useAppStore();
 
 const AUDIO_BASE_URL =
@@ -14,9 +30,7 @@ const volume = ref(50);
 const previousVolume = ref(50);
 
 const progress = computed(() => {
-  return duration.value
-    ? (currentTime.value / duration.value) * 100
-    : 0;
+  return duration.value ? (currentTime.value / duration.value) * 100 : 0;
 });
 
 function formatTime(s: number) {
@@ -66,8 +80,7 @@ function updateVolume(event: MouseEvent) {
   if (!rect.width) return;
 
   volume.value = Math.round(
-    Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width)) *
-      100,
+    Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width)) * 100,
   );
 }
 
@@ -81,17 +94,11 @@ watch(volume, (value) => {
   }
 });
 
-const hymn = computed(() => {
-  return appStore.getSelectedHymn;
-});
-
 function setAudioSource() {
   const audio = audioRef.value;
   if (!audio) return;
 
-  const selectedHymn = hymn.value;
-
-  if (!selectedHymn?.filename) {
+  if (!props.hymn?.filename) {
     audio.pause();
     audio.removeAttribute("src");
     audio.load();
@@ -102,7 +109,7 @@ function setAudioSource() {
     return;
   }
 
-  const src = new URL(AUDIO_BASE_URL + encodeURI(selectedHymn.filename)).href;
+  const src = new URL(AUDIO_BASE_URL + encodeURI(props.hymn.filename)).href;
   if (audio.src === src) return;
 
   audio.pause();
@@ -113,10 +120,11 @@ function setAudioSource() {
   currentTime.value = 0;
   duration.value = 0;
 
-  if (appStore.isPlaying) playAudio(audio);
+  if (props.manualPlay) appStore.setIsPlaying(false);
+  else if (appStore.isPlaying) playAudio(audio);
 }
 
-watch(hymn, setAudioSource);
+watch(() => props.hymn, setAudioSource);
 
 watch(
   () => appStore.isPlaying,
@@ -192,13 +200,18 @@ onUnmounted(() => {
 
 <template>
   <div
-    v-if="hymn"
-    class="absolute bottom-8 left-[70px] mx-auto w-[800px] max-w-[calc(100vw-90px)] rounded-2xl border border-neutral-300 bg-white p-2 shadow-lg"
+    :class="[
+      'w-[800px] max-w-[calc(100vw-90px)] rounded-2xl border border-neutral-300 bg-white p-2',
+      {
+        relative: type === 'inline',
+        'absolute bottom-8 left-[70px] shadow-lg': type === 'fixed',
+      },
+    ]"
   >
     <div class="w-full space-y-1">
       <div class="flex w-full items-center gap-x-4">
-        <p class="shrink-0 font-[Spectral] text-sm">
-          {{ hymn.title}}
+        <p v-if="!hideTitle" class="shrink-0 font-[Spectral] text-sm">
+          {{ hymn?.title }}
         </p>
 
         <XRangeSlider
@@ -207,10 +220,8 @@ onUnmounted(() => {
           class="min-w-0 grow"
         />
 
-        <!-- Controls: shrink-wrap content instead of filling remaining space -->
         <div class="flex shrink-0 items-center gap-x-1">
           <div class="relative grid shrink-0 place-items-center">
-            <!-- Spinning ring around the play button while audio loads -->
             <CircleLoader
               v-if="isLoading"
               class="pointer-events-none absolute -inset-1"
@@ -245,21 +256,13 @@ onUnmounted(() => {
               @click="toggleMute"
               :aria-label="volume === 0 ? 'Unmute' : 'Mute'"
             >
-              <Icon
-                v-show="volume === 0"
-                name="tabler:volume-off"
-                size="16"
-              />
+              <Icon v-show="volume === 0" name="tabler:volume-off" size="16" />
               <Icon
                 v-show="volume > 0 && volume <= 49"
                 name="tabler:volume-2"
                 size="16"
               />
-              <Icon
-                v-show="volume >= 50"
-                name="tabler:volume"
-                size="16"
-              />
+              <Icon v-show="volume >= 50" name="tabler:volume" size="16" />
             </button>
 
             <XRangeSlider
@@ -269,9 +272,10 @@ onUnmounted(() => {
             />
           </div>
           <button
+            v-if="!hideExtraControls"
             class="bg-black/10 disabled:text-neutral-400 grid shrink-0 place-items-center p-2 disabled:cursor-not-allowed rounded-full"
             aria-label="Previous Hymn"
-            :disabled="hymn.hymn_number === 1"
+            :disabled="hymn?.hymn_number === 1"
             @click="appStore.prevHymn()"
           >
             <Icon name="tabler:player-skip-back-filled" size="14" />
@@ -287,23 +291,26 @@ onUnmounted(() => {
             />
           </p>
           <button
+            v-if="!hideExtraControls"
             class="bg-black/10 grid shrink-0 place-items-center p-2 disabled:text-neutral-400 disabled:cursor-not-allowed rounded-full"
             aria-label="Next Hymn"
-            :disabled="hymn.hymn_number === 695"
+            :disabled="hymn?.hymn_number === 695"
             @click="appStore.nextHymn()"
           >
             <Icon name="tabler:player-skip-forward-filled" size="14" />
           </button>
 
           <button
+            v-if="!hideExtraControls"
             class="grid shrink-0 place-items-center rounded-full bg-black/10 p-2"
             aria-label="Expand"
           >
             <Icon name="tabler:arrows-diagonal" size="14" />
           </button>
-          
+
           <button
-            class="w-[30px] aspect-square bg-black/10 grid shrink-0 place-items-center rounded-full "
+            v-if="!hideExtraControls"
+            class="w-[30px] aspect-square bg-black/10 grid shrink-0 place-items-center rounded-full"
             aria-label="Close Player"
             @click="appStore.setCurrentlyPlayedHymns(null)"
           >

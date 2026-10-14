@@ -65,6 +65,23 @@ export const useAppStore = defineStore("app", {
     totalPages(state): number {
       return Math.ceil(this.filteredHymns.length / state.paginate.limit);
     },
+
+    // current hymn functions
+    currentHymn(state) {
+      return (hymnNo: number) => {
+        return state.hymns.find((hymn) => hymn.hymn_number === hymnNo);
+      }
+    },
+    previousHymn(state) {
+      return (hymnNo: number) => {
+        return state.hymns.find(hymn => hymn.hymn_number === (hymnNo - 1));
+      }
+    },
+    nextHymn(state) {
+      return (hymnNo: number) => {
+        return state.hymns.find(hymn => hymn.hymn_number === (hymnNo + 1));
+      }
+    }
   },
   actions: {
     setLimit(limit: number) {

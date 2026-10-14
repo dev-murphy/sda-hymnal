@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { useAppStore } from "~/stores/app";
 import type { Option } from "~/types";
 
 const appStore = useAppStore();
@@ -161,14 +160,21 @@ function scrollToTop() {
                 {{ hymn?.hymn_number }}
               </td>
               <td class="py-1.5">
-                <div class="font-[Archivo]">
-                  {{ hymn?.title }}
-                  <span
-                    class="w-[80%] block text-sm text-neutral-400 font-[Spectral] truncate"
-                  >
-                    {{ hymn?.first_line }}
-                  </span>
-                </div>
+                <NuxtLink
+                  v-if="hymn"
+                  :to="`/hymn/${hymn.hymn_number}-${slugify(hymn.title)}`"
+                >
+                  <div class="w-full group font-[Archivo]">
+                    <span class="group-hover:underline">
+                      {{ hymn.title }}
+                    </span>
+                    <span
+                      class="w-[80%] block text-sm text-neutral-400 font-[Spectral] truncate"
+                    >
+                      {{ hymn?.first_line }}
+                    </span>
+                  </div>
+                </NuxtLink>
               </td>
               <td>
                 <button
