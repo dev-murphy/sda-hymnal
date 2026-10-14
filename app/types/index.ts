@@ -1,3 +1,4 @@
+import type { StyleValue } from "vue";
 import hymns from '~/assets/json/hymns.json';
 
 export type HymnData = typeof hymns.data;
@@ -10,4 +11,5 @@ export type Option<T> = {
     name: string;
     size: string;
   }
+  style?: StyleValue;
 }

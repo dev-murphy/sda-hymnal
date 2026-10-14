@@ -30,12 +30,18 @@ function toggleIsOpen() {
   isDropdownOpen.value = !isDropdownOpen.value;
 }
 
+watch(isDropdownOpen, (isOpen) => {
+  if (!isOpen) clearSearch();
+});
+
 const filteredOptions = computed(() => {
-  if (!props.showAllOptions)
-    return props.options.filter(
-      (option) => option.name !== props.modelValue.name,
-    );
-  return props.options;
+  const search = searchText.value.trim().toLowerCase();
+
+  return props.options.filter((option) => {
+    if (!props.showAllOptions && option.name === props.modelValue.name)
+      return false;
+    return !search || option.name.toLowerCase().includes(search);
+  });
 });
 
 function setDropdownOption(option: Option<T>) {
@@ -55,6 +61,7 @@ onClickOutside(dropdownMenuRef, () => {
     <button
       v-else
       class="w-fit flex items-center gap-x-1 border border-neutral-300 font-[Archivo] text-sm px-2 py-1.5 select-none shadow cursor-pointer rounded-md"
+      :style="modelValue.style"
       @click="toggleIsOpen()"
     >
       {{ modelValue.name }}
@@ -93,23 +100,32 @@ onClickOutside(dropdownMenuRef, () => {
           <Icon name="tabler:x" size="16" class="group-hover:text-red-500" />
         </button>
       </div>
-      <button
-        v-for="(option, index) in filteredOptions"
-        :key="`${id}-${index}`"
-        :class="[
-          `flex items-center gap-x-1 px-3 py-0.5 rounded-md`,
-          textStyles,
-          {
-            'bg-neutral-200': modelValue.name === option.name,
-            'hover:bg-neutral-100': modelValue.name !== option.name,
-          },
-        ]"
-        :disabled="modelValue.name === option.name"
-        @click="setDropdownOption(option)"
-      >
-        <Icon v-if="option.icon" v-bind="option.icon" />
-        {{ option.name }}
-      </button>
+      <div class="max-h-[250px] flex flex-col gap-y-0.5 overflow-y-auto">
+        <button
+          v-for="(option, index) in filteredOptions"
+          :key="`${id}-${index}`"
+          :class="[
+            `flex items-center gap-x-1 px-3 py-0.5 rounded-md`,
+            textStyles,
+            {
+              'bg-neutral-200': modelValue.name === option.name,
+              'hover:bg-neutral-100': modelValue.name !== option.name,
+            },
+          ]"
+          :style="option.style"
+          :disabled="modelValue.name === option.name"
+          @click="setDropdownOption(option)"
+        >
+          <Icon v-if="option.icon" v-bind="option.icon" />
+          {{ option.name }}
+        </button>
+        <p
+          v-if="!filteredOptions.length"
+          class="px-3 py-0.5 text-sm text-neutral-400 font-[Archivo]"
+        >
+          No results
+        </p>
+      </div>
     </div>
   </div>
 </template>
