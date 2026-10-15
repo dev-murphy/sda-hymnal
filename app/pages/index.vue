@@ -166,10 +166,6 @@ const selectedOptions = ref(options.value[0]!);
     </div>
 
     <HymnTable />
-    <AudioPlayer
-      v-if="appStore.getSelectedHymn"
-      :hymn="appStore.getSelectedHymn"
-    />
   </div>
 </template>
 

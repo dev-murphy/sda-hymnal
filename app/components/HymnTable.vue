@@ -275,7 +275,11 @@ function scrollToTop() {
     </div>
 
     <!-- Pagination -->
-    <div class="flex items-center justify-end gap-x-1 mt-4">
+    <div class="relative flex items-center justify-end gap-x-1 mt-4">
+       <AudioPlayer
+      v-if="appStore.getSelectedHymn"
+      :hymn="appStore.getSelectedHymn"
+    />
       <p>Items:</p>
       <XDropdown
         id="opt"

@@ -185,10 +185,10 @@ onUnmounted(() => {
 <template>
   <div
     :class="[
-      'rounded-2xl bg-white',
+      'bg-white',
       {
         'relative w-[500px] shrink-0 py-2': type === 'inline',
-        'absolute bottom-8 left-[70px] w-[800px] max-w-[calc(100vw-90px)] border border-neutral-300 p-2 shadow-lg':
+        'absolute bottom-0 left-0 translate-y-2 w-[800px] max-w-[calc(100vw-90px)] border border-neutral-300 p-2 rounded-xl shadow-lg':
           type === 'fixed',
       },
     ]"
