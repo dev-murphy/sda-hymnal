@@ -23,6 +23,7 @@ const AUDIO_BASE_URL =
 const audioRef = ref<HTMLAudioElement | null>(null);
 const isPlaying = computed(() => appStore.isPlaying);
 const isLoading = ref(false);
+const isDisabled = ref(false);
 const currentTime = ref(0);
 const duration = ref(0);
 
@@ -41,9 +42,13 @@ function formatTime(s: number) {
 
 function playAudio(audio: HTMLAudioElement) {
   audio.play().catch((error: DOMException) => {
-    if (error.name === "AbortError") return;
+    if (error.name === "AbortError") {
+      isDisabled.value = true;
+      return;
+    }
     console.error(error);
     appStore.setIsPlaying(false);
+    isDisabled.value = false;
   });
 }
 
@@ -209,68 +214,109 @@ onUnmounted(() => {
 
         <div class="flex shrink-0 items-center gap-x-1">
           <div class="relative grid shrink-0 place-items-center">
-            <CircleLoader
-              v-if="isLoading"
-              class="pointer-events-none absolute -inset-1"
-              aria-hidden="true"
-            />
-            <button
-              class="grid shrink-0 place-items-center rounded-full bg-black/10 p-2"
-              @click="togglePlay"
-              :disabled="isLoading"
-              :aria-busy="isLoading"
-            >
-              <Icon
-                v-show="!isPlaying"
-                name="tabler:player-play-filled"
-                size="14"
-              />
-              <Icon
-                v-show="isPlaying"
-                name="tabler:player-pause-filled"
-                size="14"
-              />
-            </button>
+            <XTooltip :text="isPlaying ? 'Pause' : 'Play'">
+              <template #default="{ triggerOpen, triggerClose }">
+                <div
+                  @mouseenter="triggerOpen()"
+                  @mouseleave="triggerClose()"
+                >
+                  <CircleLoader
+                    v-if="isLoading"
+                    class="pointer-events-none absolute -inset-1"
+                    aria-hidden="true"
+                  />
+                  <button
+                    class="grid shrink-0 place-items-center rounded-full bg-black/10 disabled:text-neutral-400 p-2"
+                    @click="togglePlay"
+                    :disabled="isLoading"
+                    :aria-busy="isLoading"
+                  >
+                    <Icon
+                      v-show="!isPlaying"
+                      name="tabler:player-play-filled"
+                      size="14"
+                    />
+                    <Icon
+                      v-show="isPlaying"
+                      name="tabler:player-pause-filled"
+                      size="14"
+                    />
+                  </button>
+                </div>
+              </template>
+            </XTooltip>
           </div>
 
           <!-- Volume control expands on hover -->
           <div
-            class="group relative flex h-[30px] w-[30px] shrink-0 items-center overflow-hidden rounded-full bg-black/10 px-2 transition-[width] duration-300 ease-in-out hover:w-[145px] focus-within:w-[145px]"
+            class="group relative flex h-[30px] w-[30px] shrink-0 items-center rounded-full bg-black/10 transition-[width] delay-200 duration-300 ease-in-out hover:w-[146px] hover:delay-0 focus-within:w-[146px] focus-within:delay-0"
           >
-            <button
-              type="button"
-              class="absolute left-2 top-1/2 z-10 grid -translate-y-1/2 shrink-0 place-items-center"
-              @click="toggleMute"
-              :aria-label="volume === 0 ? 'Unmute' : 'Mute'"
-            >
-              <Icon v-show="volume === 0" name="tabler:volume-off" size="16" />
-              <Icon
-                v-show="volume > 0 && volume <= 49"
-                name="tabler:volume-2"
-                size="16"
-              />
-              <Icon v-show="volume >= 50" name="tabler:volume" size="16" />
-            </button>
+            <!-- Only this wrapper clips; the tooltip renders as its sibling so it isn't cut off.
+                 The pill grows leftward, so the slider is pinned right to stay still under the cursor -->
+            <XTooltip text="Volume" class="min-w-0 grow">
+              <template #default="{ triggerOpen, triggerClose }">
+                <div
+                  class="flex justify-end overflow-hidden px-2"
+                  @mouseenter="triggerOpen"
+                  @mouseleave="triggerClose"
+                >
+                  <XRangeSlider
+                    v-model="volume"
+                    :min="0"
+                    :max="100"
+                    aria-label="Volume"
+                    class="w-[100px] shrink-0 opacity-0 transition-opacity delay-200 duration-0 group-hover:opacity-100 group-hover:delay-0 group-hover:duration-200 group-focus-within:opacity-100 group-focus-within:delay-0 group-focus-within:duration-200"
+                  />
+                </div>
+              </template>
+            </XTooltip>
 
-            <XRangeSlider
-              v-model="volume"
-              :min="0"
-              :max="100"
-              aria-label="Volume"
-              class="absolute left-9 top-1/2 w-[100px] -translate-y-1/2 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100"
-            />
+            <XTooltip :text="volume === 0 ? 'Unmute' : 'Mute'" class="shrink-0">
+              <template #default="{ triggerOpen, triggerClose }">
+                <button
+                  type="button"
+                  class="grid h-[30px] w-[30px] place-items-center"
+                  :aria-label="volume === 0 ? 'Unmute' : 'Mute'"
+                  @mouseenter="triggerOpen"
+                  @mouseleave="triggerClose"
+                  @click="toggleMute"
+                >
+                  <Icon v-show="volume === 0" name="tabler:volume-off" size="16" />
+                  <Icon
+                    v-show="volume > 0 && volume <= 49"
+                    name="tabler:volume-2"
+                    size="16"
+                  />
+                  <Icon v-show="volume >= 50" name="tabler:volume" size="16" />
+                </button>
+              </template>
+            </XTooltip>
           </div>
-          <button
-            v-if="!hideExtraControls"
-            class="bg-black/10 disabled:text-neutral-400 grid shrink-0 place-items-center p-2 disabled:cursor-not-allowed rounded-full"
-            aria-label="Previous Hymn"
-            :disabled="hymn?.hymn_number === 1"
-            @click="appStore.prevHymn()"
-          >
-            <Icon name="tabler:player-skip-back-filled" size="14" />
-          </button>
+
+          <XTooltip text="Previous Hymn">
+            <template #default="{ triggerOpen, triggerClose }">
+              <button
+                v-if="!hideExtraControls"
+                class="bg-black/10 disabled:text-neutral-400 grid shrink-0 place-items-center p-2 disabled:text-neutral-400 disabled:cursor-not-allowed rounded-full"
+                aria-label="Previous Hymn"
+                :disabled="hymn?.hymn_number === 1 || isDisabled"
+                @click="appStore.setPreviousHymn()"
+                @mouseenter="triggerOpen"
+                @mouseleave="triggerClose"
+              >
+                <Icon name="tabler:player-skip-back-filled" size="14" />
+              </button>
+            </template>
+          </XTooltip>
+
+
           <p
-            class="relative w-fit shrink-0 overflow-hidden rounded-full bg-black/10 px-3 py-2 font-[Archivo] text-xs tabular-nums"
+            :class="[
+              'relative w-fit shrink-0 overflow-hidden rounded-full bg-black/10  px-3 py-2 font-[Archivo] text-xs tabular-nums',
+              {
+                'text-neutral-400': isLoading,
+              },
+            ]"
           >
             {{ formatTime(currentTime) }} / {{ formatTime(duration) }}
             <LineLoader
@@ -279,32 +325,52 @@ onUnmounted(() => {
               aria-hidden="true"
             />
           </p>
-          <button
-            v-if="!hideExtraControls"
-            class="bg-black/10 grid shrink-0 place-items-center p-2 disabled:text-neutral-400 disabled:cursor-not-allowed rounded-full"
-            aria-label="Next Hymn"
-            :disabled="hymn?.hymn_number === 695"
-            @click="appStore.nextHymn()"
-          >
-            <Icon name="tabler:player-skip-forward-filled" size="14" />
-          </button>
 
-          <button
-            v-if="!hideExtraControls"
-            class="grid shrink-0 place-items-center rounded-full bg-black/10 p-2"
-            aria-label="Expand"
-          >
-            <Icon name="tabler:arrows-diagonal" size="14" />
-          </button>
+          <XTooltip text="Next Hymn">
+            <template #default="{ triggerOpen, triggerClose }">
+              <button
+                v-if="!hideExtraControls"
+                class="bg-black/10 grid shrink-0 place-items-center p-2 disabled:text-neutral-400 disabled:cursor-not-allowed rounded-full"
+                aria-label="Next Hymn"
+                :disabled="hymn?.hymn_number === 695 || isDisabled"
+                @click="appStore.setNextHymn()"
+                @mouseenter="triggerOpen"
+                @mouseleave="triggerClose"
+              >
+                <Icon name="tabler:player-skip-forward-filled" size="14" />
+              </button>
+            </template>
+          </XTooltip>
 
-          <button
-            v-if="!hideExtraControls"
-            class="w-[30px] aspect-square bg-black/10 grid shrink-0 place-items-center rounded-full"
-            aria-label="Close Player"
-            @click="appStore.setCurrentlyPlayedHymns(null)"
-          >
-            <Icon name="tabler:x" size="18" />
-          </button>
+          <XTooltip text="Present Hymn">
+            <template #default="{ triggerOpen, triggerClose }">
+              <button
+                v-if="!hideExtraControls"
+                class="grid shrink-0 place-items-center bg-black/10 p-2 disabled:text-neutral-400 disabled:cursor-not-allowed rounded-full"
+                aria-label="Expand"
+                :disabled="isDisabled"
+                @mouseenter="triggerOpen"
+                @mouseleave="triggerClose"
+              >
+                <Icon name="tabler:arrows-diagonal" size="14" />
+              </button>
+            </template>
+          </XTooltip>
+
+          <XTooltip text="Close Player">
+            <template #default="{ triggerOpen, triggerClose }">
+              <button
+                v-if="!hideExtraControls"
+                class="w-[30px] aspect-square bg-black/10 grid shrink-0 place-items-center rounded-full"
+                aria-label="Close Player"
+                @click="appStore.setCurrentlyPlayedHymns(null)"
+                @mouseenter="triggerOpen"
+                @mouseleave="triggerClose"
+              >
+                <Icon name="tabler:x" size="18" />
+              </button>
+            </template>
+          </XTooltip>
         </div>
       </div>
     </div>
