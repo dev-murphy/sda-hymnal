@@ -37,6 +37,49 @@ const selectedOptions = ref(options.value[0]!);
         </button>
 
         <div class="ml-auto flex items-center gap-x-2">
+          <XTooltip text="Search" alignment="center">
+            <template #default="{ triggerOpen, triggerClose }">
+              <div
+                @mouseenter="!appStore.searchText && triggerOpen()"
+                @mouseleave="triggerClose()"
+                :class="[
+                  'group relative overflow-hidden transition-[width]',
+                  appStore.searchText
+                    ? 'w-[300px]'
+                    : 'w-[20px] hover:w-[300px] focus-within:w-[300px]',
+                ]"
+              >
+                <Icon
+                  name="tabler:search"
+                  size="20"
+                  class="absolute top-1/2 right-0 -translate-y-1/2 pointer-events-none"
+                />
+                <input
+                  id="search"
+                  type="text"
+                  v-model="appStore.searchText"
+                  @input="triggerClose()"
+                  placeholder="Search for title, lyrics or number"
+                  :class="[
+                    'w-full border-b pl-1 pr-14 pb-1 outline-none',
+                    appStore.searchText
+                      ? 'border-neutral-200'
+                      : 'border-transparent group-hover:border-neutral-200 group-focus-within:border-neutral-200',
+                  ]"
+                />
+                <button
+                  v-if="appStore.searchText"
+                  type="button"
+                  aria-label="Clear search"
+                  class="absolute w-5 h-5 top-1/2 right-7 -translate-y-1/2 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 flex items-center justify-center rounded-md"
+                  @click="appStore.searchText = ''"
+                >
+                  <Icon name="tabler:x" size="14" />
+                </button>
+              </div>
+            </template>
+          </XTooltip>
+
           <XTooltip text="Filter">
             <template #default="{ triggerOpen, triggerClose }">
               <XDropdown
@@ -62,6 +105,7 @@ const selectedOptions = ref(options.value[0]!);
               </XDropdown>
             </template>
           </XTooltip>
+
           <XTooltip text="Visibility">
             <template #default="{ triggerOpen, triggerClose }">
               <XMenu alignment="right">

@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import type { Option } from "~/types";
+import type { FuseResult } from "fuse.js";
+import type { Option, HymnData } from "~/types";
 
 const appStore = useAppStore();
 
@@ -73,6 +74,35 @@ function scrollToTop() {
     hymnTableRef.value.scrollTop = 0;
   }
 }
+
+// Only run Fuse once typing pauses for 250ms
+const debouncedSearchText = refDebounced(toRef(appStore, "searchText"), 250);
+const searchedHymns = computed<FuseResult<HymnData[number]>[]>(() =>
+  debouncedSearchText.value ? appStore.search(debouncedSearchText.value) : [],
+);
+
+const plainText = (text = ""): HighlightChunk[] => [{ text, match: false }];
+
+const rows = computed(() => {
+  if (appStore.searchText && searchedHymns.value.length > 0) {
+    return searchedHymns.value.map(({ item, matches = [] }) => {
+      const lyricMatch = matches.find((m) => m.key === "stanzas.text");
+      const snippet = lyricMatch && getLyricSnippet(lyricMatch);
+
+      return {
+        hymn: item,
+        subtitle: snippet
+          ? highlightMatches(snippet.text, snippet.indices)
+          : plainText(item.first_line),
+      };
+    });
+  }
+
+  return appStore.renderredPages.map((hymn) => ({
+    hymn,
+    subtitle: plainText(hymn?.first_line),
+  }));
+});
 </script>
 
 <template>
@@ -155,7 +185,7 @@ function scrollToTop() {
           </thead>
 
           <tbody>
-            <tr v-for="(hymn, index) in appStore.renderredPages">
+            <tr v-for="({ hymn, subtitle }, index) in rows">
               <td class="text-2xl text-center font-[Spectral] font-bold">
                 {{ hymn?.hymn_number }}
               </td>
@@ -171,7 +201,7 @@ function scrollToTop() {
                     <span
                       class="w-[80%] block text-sm text-neutral-400 font-[Spectral] truncate"
                     >
-                      {{ hymn?.first_line }}
+                      <HighlightText :chunks="subtitle" />
                     </span>
                   </div>
                 </NuxtLink>

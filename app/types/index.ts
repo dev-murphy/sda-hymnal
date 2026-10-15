@@ -1,8 +1,8 @@
 import type { StyleValue } from "vue";
-import hymns from '~/assets/json/hymns.json';
+import hymns from "~/assets/json/hymns.json";
 
 export type HymnData = typeof hymns.data;
-export type SortOrder = 'asc' | 'desc';
+export type SortOrder = "asc" | "desc";
 
 export type Option<T> = {
   name: string;
@@ -10,6 +10,8 @@ export type Option<T> = {
   icon?: {
     name: string;
     size: string;
-  }
+  };
   style?: StyleValue;
-}
+};
+
+export type HighlightChunk = { text: string; match: boolean };
