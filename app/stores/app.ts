@@ -1,6 +1,18 @@
+import Fuse from "fuse.js";
 import { defineStore } from "pinia";
 import { data } from "~/assets/json/hymns.json";
 import type { HymnData, SortOrder } from "~/types";
+
+let fuse: Fuse<HymnData[number]> | null = null;
+function getFuse() {
+  return (fuse ??= new Fuse(data, {
+    keys: ["hymn_number", "title", "stanzas.text"],
+    includeMatches: true,
+    ignoreLocation: true,
+    minMatchCharLength: 4,
+    threshold: 0.3,
+  }));
+}
 
 export const useAppStore = defineStore("app", {
   state: () => ({
@@ -25,6 +37,7 @@ export const useAppStore = defineStore("app", {
         subcategory: "",
       },
     },
+    searchText: ""
   }),
   getters: {
     getSelectedHymn(state) {
@@ -170,6 +183,9 @@ export const useAppStore = defineStore("app", {
       if (this.selectedHymn !== null && this.selectedHymn > 1) {
         this.selectedHymn = this.selectedHymn - 1;
       }
+    },
+    search(query: string) {
+      return getFuse().search(query);
     },
   },
 });
