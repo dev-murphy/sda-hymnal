@@ -62,15 +62,157 @@ function scrollToTop() {
   scrollY.value = 0;
 }
 
+// Sticky header collapse: 0 = expanded, 1 = compact
+const HEADER_PADDING = { expanded: 20, compact: 12 };
+const TITLE_FONT_SIZE = { expanded: 36, compact: 20 };
+const TITLE_LINE_HEIGHT = 1.2;
+const BACK_BUTTON_SIZE = 28; // h-7, the tallest item in the compact row
+const COMPACT_HEADER_HEIGHT =
+  HEADER_PADDING.compact * 2 +
+  Math.max(TITLE_FONT_SIZE.compact * TITLE_LINE_HEIGHT, BACK_BUTTON_SIZE) +
+  1; // border-b
+// Pages with barely any scroll skip the animation — it would just snap.
+const MIN_COLLAPSE_DISTANCE = 20;
+
+const pageRef = useTemplateRef<HTMLElement>("page");
+const navRef = useTemplateRef<HTMLElement>("nav");
+const headerRef = useTemplateRef<HTMLElement>("header");
+const hymnNoRef = useTemplateRef<HTMLElement>("hymnNo");
+const pillsRef = useTemplateRef<HTMLElement>("pills");
+
+const { height: pageHeight } = useElementSize(pageRef, undefined, {
+  box: "border-box",
+});
+const { height: navHeight } = useElementSize(navRef, undefined, {
+  box: "border-box",
+});
+const { height: headerHeight } = useElementSize(headerRef, undefined, {
+  box: "border-box",
+});
+const { width: hymnNoWidth } = useElementSize(hymnNoRef);
+const { height: pillsHeight } = useElementSize(pillsRef, undefined, {
+  box: "border-box",
+});
+const { height: windowHeight } = useWindowSize();
+
+// The sticky wrapper keeps the expanded height in the layout while the header
+// inside it shrinks. If the layout shrank too, content below would shift up,
+// the browser would correct scrollY (scroll anchoring), and the collapse would
+// fight the scroll position — that's the jitter.
+const expandedHeaderHeight = ref(0);
+
+// Collapse over the scroll it takes for the audio player row to reach the
+// bottom of the compact header: the nav row scrolling away plus the space the
+// header gives up. That way the blank gap closes exactly as the header
+// finishes collapsing.
+const fullCollapseDistance = computed(() =>
+  expandedHeaderHeight.value
+    ? navHeight.value + expandedHeaderHeight.value - COMPACT_HEADER_HEIGHT
+    : 0,
+);
+
+// Short hymns that scroll a little, but not the full distance, get extra
+// room at the bottom so the header can still collapse completely.
+const runwayRef = useTemplateRef<HTMLElement>("runway");
+const maxScroll = ref(0);
+const naturalMaxScroll = ref(0);
+watchEffect(
+  () => {
+    // re-measure whenever the page or viewport resizes
+    void pageHeight.value;
+    void windowHeight.value;
+    if (import.meta.server) return;
+    const de = document.documentElement;
+    maxScroll.value = de.scrollHeight - de.clientHeight;
+    naturalMaxScroll.value =
+      maxScroll.value - (runwayRef.value?.offsetHeight ?? 0);
+  },
+  { flush: "post" },
+);
+const scrollRunway = computed(() =>
+  naturalMaxScroll.value >= MIN_COLLAPSE_DISTANCE
+    ? Math.max(fullCollapseDistance.value - naturalMaxScroll.value, 0)
+    : 0,
+);
+
+const collapseDistance = computed(() =>
+  Math.min(fullCollapseDistance.value, maxScroll.value),
+);
+
+const collapse = computed(() =>
+  collapseDistance.value >= MIN_COLLAPSE_DISTANCE
+    ? Math.min(Math.max(scrollY.value / collapseDistance.value, 0), 1)
+    : 0,
+);
+
+const lerp = (from: number, to: number, t = collapse.value) =>
+  from + (to - from) * t;
+
+watchEffect(() => {
+  if (collapse.value === 0 && headerHeight.value) {
+    expandedHeaderHeight.value = headerHeight.value;
+  }
+});
+const headerWrapperStyle = computed(() =>
+  expandedHeaderHeight.value
+    ? { height: `${expandedHeaderHeight.value}px` }
+    : {},
+);
+
+const headerStyle = computed(() => ({
+  paddingTop: `${lerp(HEADER_PADDING.expanded, HEADER_PADDING.compact)}px`,
+  paddingBottom: `${lerp(HEADER_PADDING.expanded, HEADER_PADDING.compact)}px`,
+}));
+
+// Title slides right during the first half and rises beside the hymn number
+// during the second, so the two never overlap mid-collapse
+const slideProgress = computed(() => Math.min(collapse.value * 2, 1));
+const riseProgress = computed(() => Math.max(collapse.value * 2 - 1, 0));
+
+// hymn number: text-sm (20px line) — centers within the compact row
+const hymnNoStyle = computed(() => ({
+  top: `${lerp(0, (TITLE_FONT_SIZE.compact * TITLE_LINE_HEIGHT - 20) / 2, riseProgress.value)}px`,
+}));
+
+const titleStyle = computed(() => ({
+  fontSize: `${lerp(TITLE_FONT_SIZE.expanded, TITLE_FONT_SIZE.compact)}px`,
+  lineHeight: TITLE_LINE_HEIGHT,
+  paddingTop: `${lerp(20, 0, riseProgress.value)}px`,
+  paddingLeft: `${lerp(0, hymnNoWidth.value + 12, slideProgress.value)}px`,
+}));
+
+// Back + Present buttons fade into the compact header (the nav row has
+// scrolled away by then)
+const compactActionStyle = computed(() => ({
+  opacity: collapse.value,
+  visibility: collapse.value === 0 ? ("hidden" as const) : undefined,
+}));
+const backStyle = computed(() => ({
+  ...compactActionStyle.value,
+  width: `${lerp(0, BACK_BUTTON_SIZE)}px`,
+  marginRight: `${lerp(0, 8)}px`,
+}));
+
+const pillsStyle = computed(() => {
+  // leave layout untouched until measured (SSR / first paint)
+  if (collapse.value === 0 || !pillsHeight.value) return {};
+  return {
+    height: `${lerp(pillsHeight.value, 0)}px`,
+    opacity: 1 - collapse.value,
+    transform: `scale(${lerp(1, 0.6)})`,
+    visibility: collapse.value === 1 ? ("hidden" as const) : undefined,
+  };
+});
+
 onUnmounted(() => {
   appStore.setCurrentlyPlayedHymns(null);
 });
 </script>
 
 <template>
-  <div v-if="hymn" class="h-screen flex flex-col">
-    <div class="border-b border-neutral-300 py-5">
-      <div class="w-full max-w-[1024px] space-y-5 mx-auto">
+  <div v-if="hymn" ref="page" class="min-h-screen flex flex-col">
+    <div ref="nav" class="pt-5">
+      <div class="w-full max-w-[1024px] mx-auto">
         <div class="flex">
           <NuxtLink
             to="/"
@@ -104,59 +246,105 @@ onUnmounted(() => {
             </button>
           </div>
         </div>
+      </div>
+    </div>
 
-        <div>
-          <p class="text-sm text-neutral-400">
-            Hymn #{{ String(hymn.hymn_number).padStart(3, "0") }}
-          </p>
-          <h1 class="text-4xl">{{ hymn.title }}</h1>
-
-          <div class="flex items-center gap-x-1 pt-2 text-xs">
-            <span
-              v-if="hymn.key"
-              class="bg-neutral-200 py-1.5 px-3 rounded-full"
-              >{{ hymn.key }}</span
+    <div
+      class="sticky top-0 z-30 pointer-events-none"
+      :style="headerWrapperStyle"
+    >
+      <div
+        ref="header"
+        class="pointer-events-auto bg-white border-b border-neutral-300"
+        :style="headerStyle"
+      >
+        <div class="w-full max-w-[1024px] mx-auto">
+          <div class="flex items-center">
+            <NuxtLink
+              to="/"
+              class="shrink-0 grid place-items-center h-7 overflow-hidden border border-neutral-300 rounded-md"
+              aria-label="All Hymns"
+              :style="backStyle"
             >
-            <div class="w-fit flex items-center bg-neutral-200 rounded-full">
-              <p class="py-1.5 px-3">{{ hymn.category }}</p>
+              <Icon name="tabler:arrow-left" size="16" />
+            </NuxtLink>
+
+            <div class="relative min-w-0 flex-1">
               <p
-                v-if="hymn.subcategory"
-                :class="[
-                  'py-1.5 px-3',
-                  { 'border-l border-white': hymn.subcategory },
-                ]"
+                ref="hymnNo"
+                class="absolute left-0 w-max text-sm text-neutral-400"
+                :style="hymnNoStyle"
               >
-                {{ hymn.subcategory }}
+                Hymn #{{ String(hymn.hymn_number).padStart(3, "0") }}
               </p>
+              <h1 :class="{ truncate: collapse > 0 }" :style="titleStyle">
+                {{ hymn.title }}
+              </h1>
             </div>
-            <div class="w-fit flex items-center bg-neutral-200 rounded-full">
-              <XTooltip v-if="hymn.author" text="Author">
-                <template #default="{ triggerOpen, triggerClose }">
-                  <p
-                    class="py-1.5 px-3"
-                    @mouseenter="triggerOpen"
-                    @mouseleave="triggerClose"
-                  >
-                    {{ hymn.author }}
-                  </p>
-                </template>
-              </XTooltip>
-              <XTooltip v-if="hymn.composer" text="Composer">
-                <template #default="{ triggerOpen, triggerClose }">
-                  <p
-                    :class="[
-                      'py-1.5 px-3',
-                      {
-                        'border-l border-white': hymn.composer && hymn.author,
-                      },
-                    ]"
-                    @mouseenter="triggerOpen"
-                    @mouseleave="triggerClose"
-                  >
-                    {{ hymn.composer }}
-                  </p>
-                </template>
-              </XTooltip>
+
+            <button
+              class="shrink-0 w-fit flex items-center gap-x-2 px-2 py-0.5 ml-2 text-sm border border-neutral-200 rounded-md"
+              :style="compactActionStyle"
+            >
+              Present <Icon name="tabler:arrows-diagonal" size="16" />
+            </button>
+          </div>
+
+          <div
+            class="origin-top-left overflow-hidden"
+            :style="pillsStyle"
+            :aria-hidden="collapse === 1"
+          >
+            <div
+              ref="pills"
+              class="flex flex-wrap items-center gap-1 pt-2 text-xs"
+            >
+              <span
+                v-if="hymn.key"
+                class="bg-neutral-200 py-1.5 px-3 rounded-full"
+                >{{ hymn.key }}</span
+              >
+              <div class="w-fit flex items-center bg-neutral-200 rounded-full">
+                <p class="py-1.5 px-3">{{ hymn.category }}</p>
+                <p
+                  v-if="hymn.subcategory"
+                  :class="[
+                    'py-1.5 px-3',
+                    { 'border-l border-white': hymn.subcategory },
+                  ]"
+                >
+                  {{ hymn.subcategory }}
+                </p>
+              </div>
+              <div class="w-fit flex items-center bg-neutral-200 rounded-full">
+                <XTooltip v-if="hymn.author" text="Author">
+                  <template #default="{ triggerOpen, triggerClose }">
+                    <p
+                      class="py-1.5 px-3"
+                      @mouseenter="triggerOpen"
+                      @mouseleave="triggerClose"
+                    >
+                      {{ hymn.author }}
+                    </p>
+                  </template>
+                </XTooltip>
+                <XTooltip v-if="hymn.composer" text="Composer">
+                  <template #default="{ triggerOpen, triggerClose }">
+                    <p
+                      :class="[
+                        'py-1.5 px-3',
+                        {
+                          'border-l border-white': hymn.composer && hymn.author,
+                        },
+                      ]"
+                      @mouseenter="triggerOpen"
+                      @mouseleave="triggerClose"
+                    >
+                      {{ hymn.composer }}
+                    </p>
+                  </template>
+                </XTooltip>
+              </div>
             </div>
           </div>
         </div>
@@ -269,6 +457,13 @@ onUnmounted(() => {
         </p>
       </div>
     </div>
+
+    <div
+      ref="runway"
+      aria-hidden="true"
+      class="shrink-0"
+      :style="{ height: `${scrollRunway}px` }"
+    />
 
     <Transition name="fade">
       <button
