@@ -8,38 +8,44 @@ export const useAppStore = defineStore("app", {
     selectedHymn: null as number | null,
     isPlaying: false,
     fontSize: 16,
-    fontFamily: 'Archivo',
+    fontFamily: "Archivo",
     visibility: {
       author: true,
       composer: true,
-      key: true
+      key: true,
     },
     paginate: {
-      sort: 'number',
-      order: 'asc' as SortOrder,
+      sort: "number",
+      order: "asc" as SortOrder,
       limit: 10,
       currentPage: 1,
       offset: 0,
       filter: {
-        category: '',
-        subcategory: ''
-      }
+        category: "",
+        subcategory: "",
+      },
     },
   }),
   getters: {
     getSelectedHymn(state) {
-      return state.hymns.find((hymn) => hymn.hymn_number === state.selectedHymn);
+      return state.hymns.find(
+        (hymn) => hymn.hymn_number === state.selectedHymn,
+      );
     },
     filteredHymns(state) {
-     return state.paginate.filter.category !== '' ? state.hymns.filter((hymn) => hymn.category === state.paginate.filter.category) : state.hymns;
-    }, 
+      return state.paginate.filter.category !== ""
+        ? state.hymns.filter(
+            (hymn) => hymn.category === state.paginate.filter.category,
+          )
+        : state.hymns;
+    },
     renderredPages(state): Partial<HymnData> {
       const paginatedHymns = this.filteredHymns.slice(
         (this.paginate.currentPage - 1) * this.paginate.limit,
         state.paginate.currentPage * this.paginate.limit,
-      )
+      );
 
-      const direction = state.paginate.order === 'desc' ? -1 : 1;
+      const direction = state.paginate.order === "desc" ? -1 : 1;
 
       const compareText = (a?: string, b?: string) => {
         if (!a && !b) return 0;
@@ -50,16 +56,16 @@ export const useAppStore = defineStore("app", {
 
       return paginatedHymns.sort((a, b) => {
         switch (state.paginate.sort) {
-          case 'title':
+          case "title":
             return compareText(a.title, b.title);
-          case 'author':
+          case "author":
             return compareText(a.author, b.author);
-          case 'composer':
+          case "composer":
             return compareText(a.composer, b.composer);
           default:
             return (a.hymn_number - b.hymn_number) * direction;
         }
-      })
+      });
     },
     selectedCategory(state) {
       return state.paginate.filter.category;
@@ -76,25 +82,25 @@ export const useAppStore = defineStore("app", {
     currentHymn(state) {
       return (hymnNo: number) => {
         return state.hymns.find((hymn) => hymn.hymn_number === hymnNo);
-      }
+      };
     },
     previousHymn(state) {
       return (hymnNo: number) => {
-        return state.hymns.find(hymn => hymn.hymn_number === (hymnNo - 1));
-      }
+        return state.hymns.find((hymn) => hymn.hymn_number === hymnNo - 1);
+      };
     },
     nextHymn(state) {
       return (hymnNo: number) => {
-        return state.hymns.find(hymn => hymn.hymn_number === (hymnNo + 1));
-      }
-    }
+        return state.hymns.find((hymn) => hymn.hymn_number === hymnNo + 1);
+      };
+    },
   },
   actions: {
     setLimit(limit: number) {
       this.paginate.limit = limit;
     },
     nextPage() {
-      if (this.paginate.currentPage  < this.totalPages) {
+      if (this.paginate.currentPage < this.totalPages) {
         this.paginate.currentPage++;
       }
     },
@@ -115,16 +121,16 @@ export const useAppStore = defineStore("app", {
       this.paginate.currentPage = 1;
       this.paginate.filter.subcategory = subcategory;
     },
-    toggleVisibility(columnName: 'author' | 'composer' | 'key') {
-      if (columnName === 'author') {
+    toggleVisibility(columnName: "author" | "composer" | "key") {
+      if (columnName === "author") {
         this.visibility.author = !this.visibility.author;
       }
 
-      if (columnName === 'composer') {
+      if (columnName === "composer") {
         this.visibility.composer = !this.visibility.composer;
       }
 
-      if (columnName === 'key') {
+      if (columnName === "key") {
         this.visibility.key = !this.visibility.key;
       }
     },
@@ -142,11 +148,6 @@ export const useAppStore = defineStore("app", {
     setIsPlaying(value: boolean) {
       this.isPlaying = value;
     },
-    nextHymn() {
-      if (this.selectedHymn !== null && this.selectedHymn < 695) {
-        this.selectedHymn = this.selectedHymn + 1;
-      }
-    },
     setFontSize(size: number) {
       if (isNaN(size)) return;
       this.fontSize = Math.min(Math.max(Math.round(size), 12), 48);
@@ -160,10 +161,15 @@ export const useAppStore = defineStore("app", {
     decreaseFontSize() {
       this.setFontSize(this.fontSize - 2);
     },
-    prevHymn() {
+    setNextHymn() {
+      if (this.selectedHymn !== null && this.selectedHymn < 695) {
+        this.selectedHymn = this.selectedHymn + 1;
+      }
+    },
+    setPreviousHymn() {
       if (this.selectedHymn !== null && this.selectedHymn > 1) {
         this.selectedHymn = this.selectedHymn - 1;
       }
-    }
+    },
   },
 });
