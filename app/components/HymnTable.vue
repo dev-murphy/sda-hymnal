@@ -276,10 +276,12 @@ function scrollToTop() {
 
     <!-- Pagination -->
     <div class="relative flex items-center justify-end gap-x-1 mt-4">
-       <AudioPlayer
-      v-if="appStore.getSelectedHymn"
-      :hymn="appStore.getSelectedHymn"
-    />
+      <Transition name="reveal">
+        <AudioPlayer
+          v-if="appStore.getSelectedHymn"
+          :hymn="appStore.getSelectedHymn"
+        />
+      </Transition>
       <p>Items:</p>
       <XDropdown
         id="opt"
@@ -315,3 +317,17 @@ function scrollToTop() {
     </div>
   </div>
 </template>
+
+<style scoped>
+.reveal-enter-active,
+.reveal-leave-active {
+  transition: opacity 0.5s ease, transform 0.5s ease-in-out, filter 0.5s ease-out;
+}
+
+.reveal-enter-from,
+.reveal-leave-to {
+  transform: scale(0.5);
+  filter: blur(50px);
+  opacity: 0;
+}
+</style>
