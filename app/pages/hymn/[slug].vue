@@ -68,7 +68,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div v-if="hymn" class="h-screen">
+  <div v-if="hymn" class="h-screen flex flex-col">
     <div class="border-b border-neutral-300 py-5">
       <div class="w-full max-w-[1024px] space-y-5 mx-auto">
         <div class="flex">
@@ -79,7 +79,7 @@ onUnmounted(() => {
             <Icon name="tabler:arrow-left" size="16" />
             All Hymns
           </NuxtLink>
-    
+
           <div class="flex items-center gap-x-2 text-sm ml-auto">
             <NuxtLink
               v-if="appStore.previousHymn(getHymnNo)"
@@ -100,15 +100,17 @@ onUnmounted(() => {
             <button
               class="w-fit flex items-center gap-x-2 px-2 py-0.5 border border-neutral-200 rounded-md"
             >
-              Present <Icon name="tabler:arrows-diagonal" size="16"
-            /></button>
+              Present <Icon name="tabler:arrows-diagonal" size="16" />
+            </button>
           </div>
         </div>
-        
+
         <div>
-          <p class="text-sm text-neutral-400">Hymn #{{ String(hymn.hymn_number).padStart(3, "0") }}</p>
+          <p class="text-sm text-neutral-400">
+            Hymn #{{ String(hymn.hymn_number).padStart(3, "0") }}
+          </p>
           <h1 class="text-4xl">{{ hymn.title }}</h1>
-    
+
           <div class="flex items-center gap-x-1 pt-2 text-xs">
             <span
               v-if="hymn.key"
@@ -161,9 +163,10 @@ onUnmounted(() => {
       </div>
     </div>
 
-
     <div class="flex items-center justify-between py-2">
-      <div class="w-full max-w-[1024px] flex items-center justify-between mx-auto">
+      <div
+        class="w-full max-w-[1024px] flex items-center justify-between mx-auto"
+      >
         <AudioPlayer
           :hymn="hymn"
           type="inline"
@@ -181,53 +184,70 @@ onUnmounted(() => {
             is-searchable
             search-input-placeholder="Search fonts"
           />
-          <XTooltip text="Font decrease">
-            <template #default="{ triggerOpen, triggerClose }">
-              <button
-                class="grid place-items-center p-1.5 border border-neutral-300 rounded-lg disabled:opacity-40"
-                :disabled="appStore.fontSize <= 12"
-                aria-label="Decrease font size"
-                @click="appStore.decreaseFontSize()"
-                @mouseenter="triggerOpen"
-                @mouseleave="triggerClose"
-              >
-                <Icon name="tabler:text-decrease" size="20" />
-              </button>
-            </template>
-          </XTooltip>
-          <label class="flex items-center gap-x-1 px-2 py-1 border border-neutral-300 rounded-lg text-sm">
-            <input
-              :value="appStore.fontSize"
-              type="number"
-              min="12"
-              max="48"
-              class="w-8 text-center outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-              aria-label="Font size"
-              @change="onFontSizeChange"
-              @keydown.enter="($event.target as HTMLInputElement).blur()"
-            />
-            <span class="text-neutral-400">px</span>
-          </label>
-          <XTooltip text="Font increase">
-            <template #default="{ triggerOpen, triggerClose }">
-              <button
-                class="grid place-items-center p-1.5 border border-neutral-300 rounded-lg disabled:opacity-40"
-                :disabled="appStore.fontSize >= 48"
-                aria-label="Increase font size"
-                @click="appStore.increaseFontSize()"
-                @mouseenter="triggerOpen"
-                @mouseleave="triggerClose"
-              >
-                <Icon name="tabler:text-increase" size="20" />
-              </button>
-            </template>
-          </XTooltip>
+
+          <!-- Font Size -->
+          <div
+            class="flex items-center border border-neutral-300 divide-x divide-neutral-200 rounded-md"
+          >
+            <XTooltip text="Font decrease">
+              <template #default="{ triggerOpen, triggerClose }">
+                <button
+                  class="grid place-items-center px-1.5 disabled:opacity-40"
+                  :disabled="appStore.fontSize <= 12"
+                  aria-label="Decrease font size"
+                  @click="appStore.decreaseFontSize()"
+                  @mouseenter="triggerOpen"
+                  @mouseleave="triggerClose"
+                >
+                  <Icon name="tabler:plus" size="20" />
+                </button>
+              </template>
+            </XTooltip>
+            <XTooltip text="Font Size">
+              <template #default="{ triggerOpen, triggerClose }">
+                <label
+                  class="relative flex items-center gap-x-1 px-1 my-1.5 text-sm"
+                  @mouseenter="triggerOpen"
+                  @mouseleave="triggerClose"
+                >
+                  <input
+                    :value="appStore.fontSize"
+                    type="number"
+                    min="12"
+                    max="48"
+                    class="w-12 px-1 text-left outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    aria-label="Font size"
+                    @change="onFontSizeChange"
+                    @keydown.enter="($event.target as HTMLInputElement).blur()"
+                  />
+                  <span
+                    class="absolute top-1/2 -translate-y-1/2 right-2 text-neutral-400"
+                    >px</span
+                  >
+                </label>
+              </template>
+            </XTooltip>
+            <XTooltip text="Font increase">
+              <template #default="{ triggerOpen, triggerClose }">
+                <button
+                  class="grid place-items-center px-1.5 disabled:opacity-40"
+                  :disabled="appStore.fontSize >= 48"
+                  aria-label="Increase font size"
+                  @click="appStore.increaseFontSize()"
+                  @mouseenter="triggerOpen"
+                  @mouseleave="triggerClose"
+                >
+                  <Icon name="tabler:minus" size="20" />
+                </button>
+              </template>
+            </XTooltip>
+          </div>
         </div>
       </div>
     </div>
 
     <div
-      class="stanza w-full max-w-[1024px] grow space-y-4 overflow-y-auto mx-auto"
+      class="stanza w-full max-w-[1024px] grow space-y-4 mx-auto"
       :style="selectedFont.style"
     >
       <div
@@ -235,8 +255,18 @@ onUnmounted(() => {
         :key="`${hymn.hymn_number}-verse-${index}`"
         class="space-y-1"
       >
-        <p class="font-black" :style="{ fontSize: `${appStore.stanzaLabelFontSize}px` }">{{ formatVerseType(stanza.type) }}</p>
-        <p class="whitespace-pre" :style="{ fontSize: `${appStore.fontSize}px` }">{{ stanza.text }}</p>
+        <p
+          class="font-black"
+          :style="{ fontSize: `${appStore.stanzaLabelFontSize}px` }"
+        >
+          {{ formatVerseType(stanza.type) }}
+        </p>
+        <p
+          class="whitespace-pre"
+          :style="{ fontSize: `${appStore.fontSize}px` }"
+        >
+          {{ stanza.text }}
+        </p>
       </div>
     </div>
 
@@ -278,9 +308,7 @@ onUnmounted(() => {
           class="cursor-pointer ml-auto"
         >
           <p class="w-max flex flex-col">
-            <span
-              class="flex items-center justify-end gap-x-0.5 -mb-1 text-sm"
-            >
+            <span class="flex items-center justify-end gap-x-0.5 -mb-1 text-sm">
               Next
               <Icon name="tabler:arrow-right" size="14" />
             </span>
@@ -291,6 +319,5 @@ onUnmounted(() => {
         </NuxtLink>
       </div>
     </div>
-   
   </div>
 </template>
