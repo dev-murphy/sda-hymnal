@@ -169,30 +169,30 @@ const selectedOptions = ref(options.value[0]!);
                       <button @click="appStore.toggleVisibility('author')">
                         <Icon
                           v-if="appStore.visibility.author"
-                          name="tabler:eye-off"
+                          name="tabler:eye"
                           size="20"
                         />
-                        <Icon v-else name="tabler:eye" size="20" />
+                        <Icon v-else name="tabler:eye-off" size="20" />
                       </button>
 
                       <p class="py-0.5">Composer</p>
                       <button @click="appStore.toggleVisibility('composer')">
                         <Icon
                           v-if="appStore.visibility.composer"
-                          name="tabler:eye-off"
+                          name="tabler:eye"
                           size="20"
                         />
-                        <Icon v-else name="tabler:eye" size="20" />
+                        <Icon v-else name="tabler:eye-off" size="20" />
                       </button>
 
                       <p class="py-0.5">Key</p>
                       <button @click="appStore.toggleVisibility('key')">
                         <Icon
                           v-if="appStore.visibility.key"
-                          name="tabler:eye-off"
+                          name="tabler:eye"
                           size="20"
                         />
-                        <Icon v-else name="tabler:eye" size="20" />
+                        <Icon v-else name="tabler:eye-off" size="20" />
                       </button>
 
                       <p class="text-neutral-300 py-0.5 font-bold">Actions</p>
