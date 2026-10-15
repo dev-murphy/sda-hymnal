@@ -18,7 +18,7 @@ const props = withDefaults(
 const appStore = useAppStore();
 
 const AUDIO_BASE_URL =
-  "https://cdn.jsdelivr.net/gh/dev-murphy/hymn-resources@main/mp3/";
+  "https://github.com/dev-murphy/hymn-resources/raw/refs/heads/main/mp3/";
 
 const audioRef = ref<HTMLAudioElement | null>(null);
 const isPlaying = computed(() => appStore.isPlaying);
