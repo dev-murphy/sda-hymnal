@@ -1,5 +1,17 @@
 <script lang="ts" setup>
 const appStore = useAppStore();
+const visibilityColumns: {
+  label: string;
+  key?: "author" | "composer" | "key";
+}[] = [
+  { label: "Number" },
+  { label: "Title" },
+  { label: "Category" },
+  { label: "Author", key: "author" },
+  { label: "Composer", key: "composer" },
+  { label: "Key", key: "key" },
+  { label: "Actions" },
+];
 const options = ref([
   { name: "Favorites", value: "fav" },
   { name: "Recently Viewed", value: "view" },
@@ -147,64 +159,34 @@ const selectedOptions = ref(options.value[0]!);
                     </div>
 
                     <!-- Column visibility -->
-                    <div
-                      class="grid grid-cols-[1fr_20px] grid-flow-row px-2 text-sm"
-                    >
-                      <p class="text-neutral-300 py-0.5 font-bold">Number</p>
-                      <button class="disabled:text-neutral-300" disabled>
-                        <Icon name="tabler:eye" size="20" />
-                      </button>
-
-                      <p class="text-neutral-300 py-0.5 font-bold">Title</p>
-                      <button class="disabled:text-neutral-300" disabled>
-                        <Icon name="tabler:eye" size="20" />
-                      </button>
-
-                      <p class="text-neutral-300 py-0.5 font-bold">Category</p>
-                      <button class="disabled:text-neutral-300" disabled>
-                        <Icon name="tabler:eye" size="20" />
-                      </button>
-
-                      <p class="py-0.5">Author</p>
-                      <button @click="appStore.toggleVisibility('author')">
-                        <Icon
-                          v-if="appStore.visibility.author"
-                          name="tabler:eye"
-                          size="20"
+                    <div class="flex flex-col gap-y-1.5 p-2 text-sm">
+                      <label
+                        v-for="column in visibilityColumns"
+                        :key="column.label"
+                        :class="[
+                          'flex items-center justify-between',
+                          { 'text-neutral-300 font-bold': !column.key },
+                        ]"
+                      >
+                        {{ column.label }}
+                        <XToggle
+                          :model-value="
+                            column.key ? appStore.visibility[column.key] : true
+                          "
+                          :label="column.label"
+                          :disabled="!column.key"
+                          @update:model-value="
+                            column.key && appStore.toggleVisibility(column.key)
+                          "
                         />
-                        <Icon v-else name="tabler:eye-off" size="20" />
-                      </button>
-
-                      <p class="py-0.5">Composer</p>
-                      <button @click="appStore.toggleVisibility('composer')">
-                        <Icon
-                          v-if="appStore.visibility.composer"
-                          name="tabler:eye"
-                          size="20"
-                        />
-                        <Icon v-else name="tabler:eye-off" size="20" />
-                      </button>
-
-                      <p class="py-0.5">Key</p>
-                      <button @click="appStore.toggleVisibility('key')">
-                        <Icon
-                          v-if="appStore.visibility.key"
-                          name="tabler:eye"
-                          size="20"
-                        />
-                        <Icon v-else name="tabler:eye-off" size="20" />
-                      </button>
-
-                      <p class="text-neutral-300 py-0.5 font-bold">Actions</p>
-                      <button class="disabled:text-neutral-300" disabled>
-                        <Icon name="tabler:eye" size="20" />
-                      </button>
+                      </label>
                     </div>
                   </div>
                 </template>
               </XMenu>
             </template>
           </XTooltip>
+
         </div>
       </div>
     </div>
