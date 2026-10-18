@@ -18,7 +18,10 @@ const props = withDefaults(
     alignment: "center",
   },
 );
-const emits = defineEmits<{ (e: "update:modelValue", val: Option<T>): void }>();
+const emits = defineEmits<{
+  (e: "update:modelValue", val: Option<T>): void;
+  (e: "openChange", isOpen: boolean): void;
+}>();
 
 const searchText = ref("");
 function clearSearch() {
@@ -32,6 +35,7 @@ function toggleIsOpen() {
 
 watch(isDropdownOpen, (isOpen) => {
   if (!isOpen) clearSearch();
+  emits("openChange", isOpen);
 });
 
 const filteredOptions = computed(() => {

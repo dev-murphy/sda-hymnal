@@ -230,6 +230,20 @@ const filterOptions: { label: string; flag: HymnFilterFlag; disabled?: boolean }
             </template>
           </XTooltip>
 
+          <XTooltip text="Settings">
+            <template #default="{ triggerOpen, triggerClose }">
+              <button
+                command="show-modal"
+                commandfor="settings-dialog"
+                class="flex items-center"
+                @mouseenter="triggerOpen"
+                @mouseleave="triggerClose"
+                @click="triggerClose"
+              >
+                <Icon name="tabler:settings" size="18" />
+              </button>
+            </template>
+          </XTooltip>
         </div>
       </div>
     </div>

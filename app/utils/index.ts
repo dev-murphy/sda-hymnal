@@ -1,4 +1,5 @@
 import type { FuseResultMatch, RangeTuple } from "fuse.js";
+import type { Option } from "~/types";
 
 export function slugify(text: string | undefined): string {
   if (!text) return '';
@@ -82,3 +83,8 @@ export function timeAgo(timestamp: number, now = Date.now()): string {
   }
   return "just now";
 }
+
+export const PER_PAGE_OPTIONS: Option<number>[] = [10, 15, 20].map((value) => ({
+  name: `${value} / page`,
+  value,
+}));

@@ -1,7 +1,7 @@
 import Fuse from "fuse.js";
 import { defineStore } from "pinia";
 import { data } from "~/assets/json/hymns.json";
-import type { HymnData, HymnFilterFlag, SortOrder } from "~/types";
+import type { HymnData, HymnFilterFlag, SortOrder, Theme } from "~/types";
 
 let fuse: Fuse<HymnData[number]> | null = null;
 function getFuse() {
@@ -21,6 +21,7 @@ export const useAppStore = defineStore("app", {
     isPlaying: false,
     fontSize: 16,
     fontFamily: "Archivo",
+    theme: "auto" as Theme,
     favorites: [] as number[],
     // hymn number -> when it was last viewed (ms)
     recentlyViewed: {} as Record<number, number>,
@@ -194,6 +195,9 @@ export const useAppStore = defineStore("app", {
         .sort(([, a], [, b]) => b - a)
         .slice(0, 20);
       this.recentlyViewed = Object.fromEntries(entries);
+    },
+    setTheme(theme: Theme) {
+      this.theme = theme;
     },
     toggleVisibility(columnName: "author" | "composer" | "key") {
       if (columnName === "author") {

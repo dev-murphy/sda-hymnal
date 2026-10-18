@@ -18,27 +18,20 @@ function setSort(sort: string) {
 // page, filter, search), not a live clock
 const now = ref(new Date());
 
-const perPage = ref<Option<number>[]>([
-  {
-    name: "10 / page",
-    value: 10,
-  },
-  {
-    name: "15 / page",
-    value: 15,
-  },
-  {
-    name: "20 / page",
-    value: 20,
-  },
-]);
-const selected = ref(perPage.value[0]!);
-
-watch(selected, (perPage) => {
-  scrollToTop();
-  appStore.paginate.currentPage = 1;
-  appStore.setLimit(perPage.value);
+const selected = computed({
+  get: () =>
+    PER_PAGE_OPTIONS.find((o) => o.value === appStore.paginate.limit) ??
+    PER_PAGE_OPTIONS[0]!,
+  set: (option: Option<number>) => appStore.setLimit(option.value),
 });
+
+watch(
+  () => appStore.paginate.limit,
+  () => {
+    scrollToTop();
+    appStore.paginate.currentPage = 1;
+  },
+);
 
 function menuFor(hymnNo: number): Option<string>[] {
   return [
@@ -374,7 +367,7 @@ watch(rows, () => {
       <XDropdown
         id="opt"
         v-model="selected"
-        :options="perPage"
+        :options="PER_PAGE_OPTIONS"
         direction="top"
       />
       <div class="flex gap-x-3 ml-2">
