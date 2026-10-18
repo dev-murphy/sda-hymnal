@@ -57,7 +57,9 @@ const onFontSizeChange = (event: Event) => {
   input.value = String(appStore.fontSize);
 };
 
-const { y: scrollY } = useWindowScroll({ behavior: "smooth" });
+const { y: scrollY } = useWindowScroll({
+  behavior: () => (appStore.reduceMotion ? "instant" : "smooth"),
+});
 
 function scrollToTop() {
   scrollY.value = 0;
@@ -140,11 +142,15 @@ const collapseDistance = computed(() =>
   Math.min(fullCollapseDistance.value, maxScroll.value),
 );
 
-const collapse = computed(() =>
-  collapseDistance.value >= MIN_COLLAPSE_DISTANCE
-    ? Math.min(Math.max(scrollY.value / collapseDistance.value, 0), 1)
-    : 0,
-);
+const collapse = computed(() => {
+  if (collapseDistance.value < MIN_COLLAPSE_DISTANCE) return 0;
+  const progress = Math.min(
+    Math.max(scrollY.value / collapseDistance.value, 0),
+    1,
+  );
+  // reduced motion snaps between the two states instead of morphing
+  return appStore.reduceMotion ? Math.round(progress) : progress;
+});
 
 const lerp = (from: number, to: number, t = collapse.value) =>
   from + (to - from) * t;

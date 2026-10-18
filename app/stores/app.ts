@@ -22,6 +22,7 @@ export const useAppStore = defineStore("app", {
     fontSize: 16,
     fontFamily: "Archivo",
     theme: "auto" as Theme,
+    reduceMotion: false,
     favorites: [] as number[],
     // hymn number -> when it was last viewed (ms)
     recentlyViewed: {} as Record<number, number>,
@@ -198,6 +199,9 @@ export const useAppStore = defineStore("app", {
     },
     setTheme(theme: Theme) {
       this.theme = theme;
+    },
+    setReduceMotion(value: boolean) {
+      this.reduceMotion = value;
     },
     toggleVisibility(columnName: "author" | "composer" | "key") {
       if (columnName === "author") {

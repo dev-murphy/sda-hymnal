@@ -10,3 +10,16 @@
   transition: opacity 0s;
   opacity: 0;
 }
+
+/* "Reduce animations" setting */
+html[data-reduce-motion],
+html[data-reduce-motion] *,
+html[data-reduce-motion] *::before,
+html[data-reduce-motion] *::after {
+  scroll-behavior: auto !important;
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+  animation-iteration-count: 1 !important;
+}

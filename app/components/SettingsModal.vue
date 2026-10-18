@@ -89,6 +89,14 @@ const previewStanza = appStore.hymns[0]!.stanzas[0]!;
         </div>
       </div>
       <div class="flex items-center justify-between">
+        <p>Reduce animations</p>
+        <XToggle
+          :model-value="appStore.reduceMotion"
+          label="Reduce animations"
+          @update:model-value="appStore.setReduceMotion"
+        />
+      </div>
+      <div class="flex items-center justify-between">
         <p>Default number of items/page</p>
         <XDropdown
           id="default-limit"
