@@ -57,3 +57,28 @@ export function getLyricSnippet(match: FuseResultMatch) {
 
   return { text: text.slice(lineStart, lineEnd), indices };
 }
+
+
+const TIME_UNITS: [seconds: number, singular: string, plural: string][] = [
+  [60 * 60 * 24 * 365, "year", "years"],
+  [60 * 60 * 24 * 30, "month", "months"],
+  [60 * 60 * 24 * 7, "week", "weeks"],
+  [60 * 60 * 24, "day", "days"],
+  [60 * 60, "hr", "hrs"],
+  [60, "min", "mins"],
+  [1, "sec", "secs"],
+];
+
+// e.g. "10 secs ago", "4 hrs ago", "3 years ago"
+export function timeAgo(timestamp: number, now = Date.now()): string {
+  const seconds = Math.max(0, Math.floor((now - timestamp) / 1000));
+  if (seconds < 5) return "just now";
+
+  for (const [unitSeconds, singular, plural] of TIME_UNITS) {
+    if (seconds >= unitSeconds) {
+      const value = Math.floor(seconds / unitSeconds);
+      return `${value} ${value === 1 ? singular : plural} ago`;
+    }
+  }
+  return "just now";
+}

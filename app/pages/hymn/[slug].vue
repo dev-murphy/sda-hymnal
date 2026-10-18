@@ -10,6 +10,7 @@ const getHymnNo = computed(() => {
 });
 
 appStore.setCurrentlyPlayedHymns(getHymnNo.value);
+appStore.addRecentlyViewed(getHymnNo.value);
 
 const hymn = computed(() => {
   if (isNaN(getHymnNo.value)) {

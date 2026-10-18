@@ -14,6 +14,10 @@ function setSort(sort: string) {
   appStore.setSort(sort, "asc");
 }
 
+// "Viewed" times are relative to when the rows last changed (load, sort,
+// page, filter, search), not a live clock
+const now = ref(new Date());
+
 const perPage = ref<Option<number>[]>([
   {
     name: "10 / page",
@@ -36,21 +40,37 @@ watch(selected, (perPage) => {
   appStore.setLimit(perPage.value);
 });
 
-const menu = ref([
-  {
-    name: "Present",
-    value: "present",
-  },
-  {
-    name: "Like",
-    value: "favorite",
-  },
-  {
-    name: "Share",
-    value: "share",
-  },
-]);
-const selectedMenuOption = ref(menu.value[0]!);
+function menuFor(hymnNo: number): Option<string>[] {
+  return [
+    {
+      name: "Present",
+      value: "present",
+      icon: { name: "tabler:presentation", size: "16" },
+    },
+    appStore.isFavorite(hymnNo)
+      ? {
+          name: "Unlike",
+          value: "favorite",
+          icon: { name: "tabler:heart-off", size: "16" },
+        }
+      : {
+          name: "Like",
+          value: "favorite",
+          icon: { name: "tabler:heart", size: "16" },
+        },
+    {
+      name: "Share",
+      value: "share",
+      icon: { name: "tabler:share", size: "16" },
+    },
+  ];
+}
+// the menu is an action list, so nothing is ever shown as selected
+const noMenuSelection: Option<string> = { name: "", value: "" };
+
+function handleMenuAction(option: Option<string>, hymnNo: number) {
+  if (option.value === "favorite") appStore.toggleFavorite(hymnNo);
+}
 
 const hymnTableRef = ref<HTMLElement | null>();
 const hasReachedEnd = ref(false);
@@ -102,6 +122,10 @@ const rows = computed(() => {
     hymn,
     subtitle: plainText(hymn?.first_line),
   }));
+});
+
+watch(rows, () => {
+  now.value = new Date();
 });
 </script>
 
@@ -180,6 +204,18 @@ const rows = computed(() => {
                 </div>
               </th>
               <th v-if="appStore.visibility.key" class="w-24">Key</th>
+              <th v-if="appStore.paginate.filter.flags.recentlyViewed" class="w-32">
+                <div
+                  class="flex items-center gap-x-1 select-none"
+                  @click="setSort('viewed')"
+                >
+                  Viewed
+                  <SortIndicator
+                    :is-sorted="appStore.paginate.sort !== 'viewed'"
+                    :order="appStore.paginate.order"
+                  />
+                </div>
+              </th>
               <th class="w-32">Actions</th>
             </tr>
           </thead>
@@ -195,8 +231,17 @@ const rows = computed(() => {
                   :to="`/hymn/${hymn.hymn_number}-${slugify(hymn.title)}`"
                 >
                   <div class="w-full group font-[Archivo]">
-                    <span class="group-hover:underline">
-                      {{ hymn.title }}
+                    <span class="flex items-center gap-x-1">
+                      <span class="group-hover:underline">
+                        {{ hymn.title }}
+                      </span>
+                      <Icon
+                        v-if="appStore.isFavorite(hymn.hymn_number)"
+                        name="tabler:heart-filled"
+                        size="14"
+                        class="text-red-500"
+                        aria-label="Favorited"
+                      />
                     </span>
                     <span
                       class="w-[80%] block text-sm text-neutral-400 font-[Spectral] truncate"
@@ -226,6 +271,18 @@ const rows = computed(() => {
               <td v-if="appStore.visibility.composer">{{ hymn?.composer }}</td>
               <td v-if="appStore.visibility.key">
                 {{ hymn?.key }}
+              </td>
+              <td
+                v-if="appStore.paginate.filter.flags.recentlyViewed"
+                class="text-sm text-neutral-500"
+              >
+                <time
+                  v-if="hymn && appStore.recentlyViewed[hymn.hymn_number]"
+                  :datetime="new Date(appStore.recentlyViewed[hymn.hymn_number]!).toISOString()"
+                  :title="new Date(appStore.recentlyViewed[hymn.hymn_number]!).toLocaleString()"
+                >
+                  {{ timeAgo(appStore.recentlyViewed[hymn.hymn_number]!, now.getTime()) }}
+                </time>
               </td>
               <td>
                 <div class="flex items-center gap-x-2">
@@ -258,8 +315,9 @@ const rows = computed(() => {
 
                   <XDropdown
                     id="hymn-menu"
-                    v-model="selectedMenuOption"
-                    :options="menu"
+                    :model-value="noMenuSelection"
+                    :options="menuFor(hymn!.hymn_number)"
+                    @update:model-value="handleMenuAction($event, hymn!.hymn_number)"
                     alignment="right"
                     text-styles="text-left text-neutral-600 font-[Archivo]"
                     :direction="

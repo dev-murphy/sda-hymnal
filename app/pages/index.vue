@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 const appStore = useAppStore();
+import type { HymnFilterFlag } from "~/types";
+
 const visibilityColumns: {
   label: string;
   key?: "author" | "composer" | "key";
@@ -12,11 +14,13 @@ const visibilityColumns: {
   { label: "Key", key: "key" },
   { label: "Actions" },
 ];
-const options = ref([
-  { name: "Favorites", value: "fav" },
-  { name: "Recently Viewed", value: "view" },
-]);
-const selectedOptions = ref(options.value[0]!);
+
+const filterOptions: { label: string; flag: HymnFilterFlag; disabled?: boolean }[] = [
+  { label: "Favorites", flag: "favorites" },
+  { label: "Recently Viewed", flag: "recentlyViewed" },
+  // no data to back this yet
+  { label: "Recently Added", flag: "recentlyAdded", disabled: true },
+];
 </script>
 
 <template>
@@ -94,14 +98,10 @@ const selectedOptions = ref(options.value[0]!);
 
           <XTooltip text="Filter">
             <template #default="{ triggerOpen, triggerClose }">
-              <XDropdown
-                id="filter"
-                v-model="selectedOptions"
-                :options="options"
-                alignment="right"
-              >
+              <XMenu alignment="right">
                 <template #default="{ triggerEvent, isOpen }">
                   <button
+                    class="relative flex items-center"
                     @mouseenter="!isOpen && triggerOpen()"
                     @mouseleave="triggerClose()"
                     @click="
@@ -112,9 +112,52 @@ const selectedOptions = ref(options.value[0]!);
                     "
                   >
                     <Icon name="tabler:filter-2" size="20" />
+                    <span
+                      v-if="appStore.activeFilterCount"
+                      class="absolute -top-1.5 -right-1.5 min-w-4 h-4 px-1 grid place-items-center bg-neutral-800 text-white text-[10px] font-bold rounded-full"
+                    >
+                      {{ appStore.activeFilterCount }}
+                    </span>
                   </button>
                 </template>
-              </XDropdown>
+
+                <template #menu="{ triggerEvent }">
+                  <div
+                    class="w-[220px] flex items-center p-2 border-b border-neutral-200"
+                  >
+                    <p
+                      class="mr-auto text-xs font-[Archivo] font-black tracking-widest"
+                    >
+                      Filter
+                    </p>
+                    <button
+                      class="flex items-center justify-center bg-neutral-200/75 p-1 rounded-md"
+                      @click="triggerEvent()"
+                    >
+                      <Icon name="tabler:x" size="14" class="text-neutral-600" />
+                    </button>
+                  </div>
+
+                  <div class="flex flex-col gap-y-1.5 p-2 text-sm">
+                    <label
+                      v-for="option in filterOptions"
+                      :key="option.flag"
+                      :class="[
+                        'flex items-center justify-between',
+                        { 'text-neutral-300': option.disabled },
+                      ]"
+                    >
+                      {{ option.label }}
+                      <XToggle
+                        :model-value="appStore.paginate.filter.flags[option.flag]"
+                        :label="option.label"
+                        :disabled="option.disabled"
+                        @update:model-value="appStore.toggleFilterFlag(option.flag)"
+                      />
+                    </label>
+                  </div>
+                </template>
+              </XMenu>
             </template>
           </XTooltip>
 

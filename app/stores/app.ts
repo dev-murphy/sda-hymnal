@@ -1,7 +1,7 @@
 import Fuse from "fuse.js";
 import { defineStore } from "pinia";
 import { data } from "~/assets/json/hymns.json";
-import type { HymnData, SortOrder } from "~/types";
+import type { HymnData, HymnFilterFlag, SortOrder } from "~/types";
 
 let fuse: Fuse<HymnData[number]> | null = null;
 function getFuse() {
@@ -21,6 +21,9 @@ export const useAppStore = defineStore("app", {
     isPlaying: false,
     fontSize: 16,
     fontFamily: "Archivo",
+    favorites: [] as number[],
+    // hymn number -> when it was last viewed (ms)
+    recentlyViewed: {} as Record<number, number>,
     visibility: {
       author: true,
       composer: true,
@@ -35,6 +38,11 @@ export const useAppStore = defineStore("app", {
       filter: {
         category: "",
         subcategory: "",
+        flags: {
+          recentlyAdded: false,
+          recentlyViewed: false,
+          favorites: false,
+        } as Record<HymnFilterFlag, boolean>,
       },
     },
     searchText: ""
@@ -46,18 +54,25 @@ export const useAppStore = defineStore("app", {
       );
     },
     filteredHymns(state) {
-      return state.paginate.filter.category !== ""
-        ? state.hymns.filter(
-            (hymn) => hymn.category === state.paginate.filter.category,
-          )
-        : state.hymns;
-    },
-    renderredPages(state): Partial<HymnData> {
-      const paginatedHymns = this.filteredHymns.slice(
-        (this.paginate.currentPage - 1) * this.paginate.limit,
-        state.paginate.currentPage * this.paginate.limit,
-      );
+      const { category, flags } = state.paginate.filter;
+      const favorites = new Set(state.favorites);
 
+      return state.hymns.filter((hymn) => {
+        if (category !== "" && hymn.category !== category) return false;
+        if (flags.favorites && !favorites.has(hymn.hymn_number)) return false;
+        if (flags.recentlyViewed && !(hymn.hymn_number in state.recentlyViewed))
+          return false;
+        return true;
+      });
+    },
+    activeFilterCount(state): number {
+      return Object.values(state.paginate.filter.flags).filter(Boolean).length;
+    },
+    isFavorite(state) {
+      return (hymnNo: number) => state.favorites.includes(hymnNo);
+    },
+    // sort the whole list before paginating so order holds across pages
+    sortedHymns(state): HymnData {
       const direction = state.paginate.order === "desc" ? -1 : 1;
 
       const compareText = (a?: string, b?: string) => {
@@ -67,8 +82,19 @@ export const useAppStore = defineStore("app", {
         return a.localeCompare(b) * direction;
       };
 
-      return paginatedHymns.sort((a, b) => {
+      const compareViewed = (a: number, b: number) => {
+        const viewedA = state.recentlyViewed[a];
+        const viewedB = state.recentlyViewed[b];
+        if (viewedA === undefined && viewedB === undefined) return 0;
+        if (viewedA === undefined) return 1;
+        if (viewedB === undefined) return -1;
+        return (viewedA - viewedB) * direction;
+      };
+
+      return [...this.filteredHymns].sort((a, b) => {
         switch (state.paginate.sort) {
+          case "viewed":
+            return compareViewed(a.hymn_number, b.hymn_number);
           case "title":
             return compareText(a.title, b.title);
           case "author":
@@ -79,6 +105,12 @@ export const useAppStore = defineStore("app", {
             return (a.hymn_number - b.hymn_number) * direction;
         }
       });
+    },
+    renderredPages(state): Partial<HymnData> {
+      return this.sortedHymns.slice(
+        (state.paginate.currentPage - 1) * state.paginate.limit,
+        state.paginate.currentPage * state.paginate.limit,
+      );
     },
     selectedCategory(state) {
       return state.paginate.filter.category;
@@ -133,6 +165,35 @@ export const useAppStore = defineStore("app", {
     setSubCategory(subcategory: string) {
       this.paginate.currentPage = 1;
       this.paginate.filter.subcategory = subcategory;
+    },
+    toggleFilterFlag(flag: HymnFilterFlag) {
+      this.paginate.currentPage = 1;
+      this.paginate.filter.flags[flag] = !this.paginate.filter.flags[flag];
+
+      // recently viewed reads best newest first; drop the sort once its column goes
+      if (flag === "recentlyViewed") {
+        if (this.paginate.filter.flags.recentlyViewed) {
+          this.setSort("viewed", "desc");
+        } else if (this.paginate.sort === "viewed") {
+          this.setSort("number", "asc");
+        }
+      }
+    },
+    toggleFavorite(hymnNo: number) {
+      const index = this.favorites.indexOf(hymnNo);
+      if (index === -1) this.favorites.push(hymnNo);
+      else this.favorites.splice(index, 1);
+    },
+    addRecentlyViewed(hymnNo: number) {
+      if (isNaN(hymnNo)) return;
+      // keep only the 20 most recent
+      const entries = Object.entries({
+        ...this.recentlyViewed,
+        [hymnNo]: Date.now(),
+      })
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 20);
+      this.recentlyViewed = Object.fromEntries(entries);
     },
     toggleVisibility(columnName: "author" | "composer" | "key") {
       if (columnName === "author") {
