@@ -192,8 +192,8 @@ onUnmounted(() => {
     :class="[
       'bg-white',
       {
-        'relative w-[500px] shrink-0 py-2': type === 'inline',
-        'absolute bottom-0 left-0 translate-y-2 w-[800px] max-w-[calc(100vw-90px)] border border-neutral-300 p-2 rounded-xl shadow-lg':
+        'relative w-125 shrink-0 py-2': type === 'inline',
+        'absolute bottom-0 left-0 translate-y-2 w-200 max-w-[calc(100vw-90px)] border border-neutral-300 p-2 rounded-xl shadow-lg':
           type === 'fixed',
       },
     ]"
@@ -216,10 +216,7 @@ onUnmounted(() => {
           <div class="relative grid shrink-0 place-items-center">
             <XTooltip :text="isPlaying ? 'Pause' : 'Play'">
               <template #default="{ triggerOpen, triggerClose }">
-                <div
-                  @mouseenter="triggerOpen()"
-                  @mouseleave="triggerClose()"
-                >
+                <div @mouseenter="triggerOpen()" @mouseleave="triggerClose()">
                   <CircleLoader
                     v-if="isLoading"
                     class="pointer-events-none absolute -inset-1"
@@ -249,7 +246,7 @@ onUnmounted(() => {
 
           <!-- Volume control expands on hover -->
           <div
-            class="group relative flex h-[30px] w-[30px] shrink-0 items-center rounded-full bg-black/10 transition-[width] delay-200 duration-300 ease-in-out hover:w-[146px] hover:delay-0 focus-within:w-[146px] focus-within:delay-0"
+            class="group relative flex h-7.5 w-7.5 shrink-0 items-center rounded-full bg-black/10 transition-[width] delay-200 duration-300 ease-in-out hover:w-36.5 hover:delay-0 focus-within:w-36.5 focus-within:delay-0"
           >
             <!-- Only this wrapper clips; the tooltip renders as its sibling so it isn't cut off.
                  The pill grows leftward, so the slider is pinned right to stay still under the cursor -->
@@ -265,7 +262,7 @@ onUnmounted(() => {
                     :min="0"
                     :max="100"
                     aria-label="Volume"
-                    class="w-[100px] shrink-0 opacity-0 transition-opacity delay-200 duration-0 group-hover:opacity-100 group-hover:delay-0 group-hover:duration-200 group-focus-within:opacity-100 group-focus-within:delay-0 group-focus-within:duration-200"
+                    class="w-25 shrink-0 opacity-0 transition-opacity delay-200 duration-0 group-hover:opacity-100 group-hover:delay-0 group-hover:duration-200 group-focus-within:opacity-100 group-focus-within:delay-0 group-focus-within:duration-200"
                   />
                 </div>
               </template>
@@ -275,13 +272,17 @@ onUnmounted(() => {
               <template #default="{ triggerOpen, triggerClose }">
                 <button
                   type="button"
-                  class="grid h-[30px] w-[30px] place-items-center"
+                  class="grid h-7.5 w-7.5 place-items-center"
                   :aria-label="volume === 0 ? 'Unmute' : 'Mute'"
                   @mouseenter="triggerOpen"
                   @mouseleave="triggerClose"
                   @click="toggleMute"
                 >
-                  <Icon v-show="volume === 0" name="tabler:volume-off" size="16" />
+                  <Icon
+                    v-show="volume === 0"
+                    name="tabler:volume-off"
+                    size="16"
+                  />
                   <Icon
                     v-show="volume > 0 && volume <= 49"
                     name="tabler:volume-2"
@@ -297,7 +298,7 @@ onUnmounted(() => {
             <template #default="{ triggerOpen, triggerClose }">
               <button
                 v-if="!hideExtraControls"
-                class="bg-black/10 disabled:text-neutral-400 grid shrink-0 place-items-center p-2 disabled:text-neutral-400 disabled:cursor-not-allowed rounded-full"
+                class="bg-black/10 grid shrink-0 place-items-center p-2 disabled:text-neutral-400 disabled:cursor-not-allowed rounded-full"
                 aria-label="Previous Hymn"
                 :disabled="hymn?.hymn_number === 1 || isDisabled"
                 @click="appStore.setPreviousHymn()"
@@ -308,7 +309,6 @@ onUnmounted(() => {
               </button>
             </template>
           </XTooltip>
-
 
           <p
             :class="[
@@ -321,7 +321,7 @@ onUnmounted(() => {
             {{ formatTime(currentTime) }} / {{ formatTime(duration) }}
             <LineLoader
               v-if="isLoading"
-              class="pointer-events-none absolute inset-x-0 bottom-0 h-[3px] w-full text-[hsl(228,97%,42%)]"
+              class="pointer-events-none absolute inset-x-0 bottom-0 h-0.75 w-full text-[hsl(228,97%,42%)]"
               aria-hidden="true"
             />
           </p>
@@ -361,7 +361,7 @@ onUnmounted(() => {
             <template #default="{ triggerOpen, triggerClose }">
               <button
                 v-if="!hideExtraControls"
-                class="w-[30px] aspect-square bg-black/10 grid shrink-0 place-items-center rounded-full"
+                class="w-7.5 aspect-square bg-black/10 grid shrink-0 place-items-center rounded-full"
                 aria-label="Close Player"
                 @click="appStore.setCurrentlyPlayedHymns(null)"
                 @mouseenter="triggerOpen"
