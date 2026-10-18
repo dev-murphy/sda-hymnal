@@ -21,6 +21,18 @@ const filterOptions: { label: string; flag: HymnFilterFlag; disabled?: boolean }
   // no data to back this yet
   { label: "Recently Added", flag: "recentlyAdded", disabled: true },
 ];
+
+// Static image for the home page; hymn pages generate their own via defineOgImage
+const siteConfig = useSiteConfig();
+useSeoMeta({
+  ogImage: {
+    url: `${siteConfig.url}/og-image.png`,
+    type: "image/png",
+    alt: "Seventh-Day Adventist Hymnal",
+  },
+  twitterCard: "summary_large_image",
+  twitterImage: `${siteConfig.url}/og-image.png`,
+});
 </script>
 
 <template>

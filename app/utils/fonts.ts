@@ -8,7 +8,7 @@ export type Font = {
 
 // Shared by nuxt.config.ts (to load the fonts) and the hymn font selector
 export const FONTS: Font[] = [
-  { name: 'Archivo', category: 'sans-serif' },
+  { name: 'Archivo', category: 'sans-serif', weights: ['100 900'] },
   { name: 'Spectral', category: 'serif' },
   { name: 'Epilogue', category: 'sans-serif', weights: ['400', '700'] },
   { name: 'Inter', category: 'sans-serif' },

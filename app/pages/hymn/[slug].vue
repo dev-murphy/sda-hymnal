@@ -208,6 +208,26 @@ const pillsStyle = computed(() => {
 onUnmounted(() => {
   appStore.setCurrentlyPlayedHymns(null);
 });
+
+const author = computed(() => {
+  return hymn.value?.author ? " by " + hymn.value.author : "";
+});
+
+useSeoMeta({
+  title: () => `${hymn.value?.hymn_number} - ${hymn.value?.title} | SDA Hymnal`,
+  description: () =>
+    `Read the lyrics of hymn #${hymn.value?.hymn_number}, ${hymn.value?.title}${author.value} - SDA Hymnal`,
+  ogTitle: () =>
+    `${hymn.value?.hymn_number} - ${hymn.value?.title} | SDA Hymnal`,
+  ogDescription: () =>
+    `Read the lyrics of hymn #${hymn.value?.hymn_number}, ${hymn.value?.title}${author.value} - SDA Hymnal`,
+});
+
+defineOgImage("Hymn.takumi", {
+  number: hymn.value?.hymn_number,
+  title: hymn.value?.title,
+  firstLine: hymn.value?.first_line,
+});
 </script>
 
 <template>
@@ -353,9 +373,7 @@ onUnmounted(() => {
     </div>
 
     <div class="flex items-center justify-between py-2">
-      <div
-        class="w-full max-w-5xl flex items-center justify-between mx-auto"
-      >
+      <div class="w-full max-w-5xl flex items-center justify-between mx-auto">
         <AudioPlayer
           :hymn="hymn"
           type="inline"

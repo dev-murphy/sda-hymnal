@@ -8,6 +8,7 @@ export default defineNuxtConfig({
     "@nuxt/fonts",
     "@pinia/nuxt",
     "@vueuse/nuxt/module",
+    "nuxt-og-image",
   ],
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
@@ -29,6 +30,18 @@ export default defineNuxtConfig({
       ],
     },
   },
+  // Website Config for OG images
+  site: {
+    url: "https://sda-hymnal.zcodes.dev",
+    name: "Seventh-Day Adventist Hymnal"
+  },
+  // Match the 1200x630 background in public/hymn-og-image.png
+  ogImage: {
+    defaults: {
+      width: 1200,
+      height: 630,
+    },
+  },
   // Icons
   icon: {
     mode: "css",
@@ -39,12 +52,16 @@ export default defineNuxtConfig({
   },
   // Fonts
   fonts: {
-    families: FONTS.map((font) => ({
-      name: font.name,
-      provider: "google",
-      // fonts are applied with inline styles, so they can't be auto-detected from CSS
-      global: true,
-      ...(font.weights && { weights: font.weights }),
-    })),
+    families: [
+      ...FONTS.map((font) => ({
+        name: font.name,
+        provider: "google",
+        // fonts are applied with inline styles, so they can't be auto-detected from CSS
+        global: true,
+        ...(font.weights && { weights: font.weights }),
+      })),
+      // hymn number in the OG image (not offered in the font selector)
+      { name: "Syne", provider: "google", global: true, weights: ["400 800"] },
+    ],
   },
 });
