@@ -15,6 +15,20 @@ export default defineNuxtConfig({
   vite: {
     plugins: [tailwindcss()],
   },
+  // Default SEO meta tags
+  app: {
+    head: {
+      title: "Seventh-Day Adventist Hymnal",
+      htmlAttrs: {
+        lang: "en",
+      },
+      link: [
+        { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
+        { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32x32.png" },
+        { rel: "icon", type: "image/png", sizes: "96x96", href: "/favicon-96x96.png" },
+      ],
+    },
+  },
   // Icons
   icon: {
     mode: "css",
