@@ -213,7 +213,7 @@ onUnmounted(() => {
 <template>
   <div v-if="hymn" ref="page" class="min-h-screen flex flex-col">
     <div ref="nav" class="pt-5">
-      <div class="w-full max-w-[1024px] mx-auto">
+      <div class="w-full max-w-5xl mx-auto">
         <div class="flex">
           <NuxtLink
             to="/"
@@ -259,7 +259,7 @@ onUnmounted(() => {
         class="pointer-events-auto bg-white border-b border-neutral-300"
         :style="headerStyle"
       >
-        <div class="w-full max-w-[1024px] mx-auto">
+        <div class="w-full max-w-5xl mx-auto">
           <div class="flex items-center">
             <NuxtLink
               to="/"
@@ -354,7 +354,7 @@ onUnmounted(() => {
 
     <div class="flex items-center justify-between py-2">
       <div
-        class="w-full max-w-[1024px] flex items-center justify-between mx-auto"
+        class="w-full max-w-5xl flex items-center justify-between mx-auto"
       >
         <AudioPlayer
           :hymn="hymn"
@@ -436,7 +436,7 @@ onUnmounted(() => {
     </div>
 
     <div
-      class="stanza w-full max-w-[1024px] grow space-y-4 mx-auto"
+      class="stanza w-full max-w-5xl grow space-y-4 mx-auto"
       :style="selectedFont.style"
     >
       <div
@@ -481,7 +481,7 @@ onUnmounted(() => {
       class="sticky bottom-0 bg-white flex items-center justify-between mt-2 border-t border-neutral-300"
     >
       <div
-        class="w-full max-w-[1240px] flex items-center justify-between p-2 mx-auto"
+        class="w-full max-w-310 flex items-center justify-between p-2 mx-auto"
       >
         <NuxtLink
           v-if="appStore.previousHymn(getHymnNo)"

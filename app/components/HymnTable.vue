@@ -124,7 +124,7 @@ watch(rows, () => {
 
 <template>
   <!-- Desktop Table -->
-  <div class="w-full max-w-[1240px] mx-auto">
+  <div class="w-full max-w-310 mx-auto">
     <p
       v-if="appStore.selectedCategory"
       class="w-fit flex items-center gap-x-1 border border-neutral-300 mb-2 px-2 py-0.5 rounded-full"
@@ -136,7 +136,7 @@ watch(rows, () => {
     <div class="relative">
       <div
         ref="hymnTableRef"
-        class="h-[602px] border border-neutral-200 rounded-xl overflow-y-auto scroll-smooth"
+        class="h-150.5 border border-neutral-200 rounded-xl overflow-y-auto scroll-smooth"
         @scroll="handleScroll"
       >
         <table class="w-full table-fixed front-[Spectral] border-collapse">

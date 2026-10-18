@@ -25,7 +25,7 @@ const filterOptions: { label: string; flag: HymnFilterFlag; disabled?: boolean }
 
 <template>
   <div class="min-h-screen flex flex-col pb-10">
-    <div class="w-full max-w-[1240px] mt-auto mb-2 mx-auto">
+    <div class="w-full max-w-310 mt-auto mb-2 mx-auto">
       <h1 class="text-4xl font-black font-[Epilogue] pb-2">
         Seventh-day Adventist Hymnals
       </h1>
@@ -61,8 +61,8 @@ const filterOptions: { label: string; flag: HymnFilterFlag; disabled?: boolean }
                 :class="[
                   'group relative overflow-hidden transition-[width]',
                   appStore.searchText
-                    ? 'w-[300px]'
-                    : 'w-[20px] hover:w-[300px] focus-within:w-[300px]',
+                    ? 'w-75'
+                    : 'w-5 hover:w-75 focus-within:w-75',
                 ]"
               >
                 <Icon
@@ -123,7 +123,7 @@ const filterOptions: { label: string; flag: HymnFilterFlag; disabled?: boolean }
 
                 <template #menu="{ triggerEvent }">
                   <div
-                    class="w-[220px] flex items-center p-2 border-b border-neutral-200"
+                    class="w-55 flex items-center p-2 border-b border-neutral-200"
                   >
                     <p
                       class="mr-auto text-xs font-[Archivo] font-black tracking-widest"
@@ -182,7 +182,7 @@ const filterOptions: { label: string; flag: HymnFilterFlag; disabled?: boolean }
                 <template #menu="{ triggerEvent }">
                   <div class="">
                     <div
-                      class="w-[200px] flex items-center p-2 border-b border-neutral-200"
+                      class="w-50 flex items-center p-2 border-b border-neutral-200"
                     >
                       <p
                         class="mr-auto text-xs font-[Archivo] font-black tracking-widest"
@@ -253,12 +253,13 @@ const filterOptions: { label: string; flag: HymnFilterFlag; disabled?: boolean }
 </template>
 
 <style scoped>
+@reference "tailwindcss";
 .current-tab::before {
   content: "";
   position: absolute;
 
   width: 50%;
   background-color: black;
-  @apply top-full left-1/2 -translate-x-1/2 -translate-y-full h-[3px] rounded-t-md;
+  @apply top-full left-1/2 -translate-x-1/2 -translate-y-full h-0.75 rounded-t-md;
 }
 </style>

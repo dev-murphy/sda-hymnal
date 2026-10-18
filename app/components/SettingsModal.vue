@@ -51,7 +51,7 @@ const previewStanza = appStore.hymns[0]!.stanzas[0]!;
 <template>
   <dialog
     id="settings-dialog"
-    class="w-[500px] max-w-[calc(100vw-2rem)] open:flex flex-col items-center overflow-visible rounded-xl shadow-lg"
+    class="w-125 max-w-[calc(100vw-2rem)] open:flex flex-col items-center overflow-visible rounded-xl shadow-lg"
   >
     <div
       class="w-full flex items-center justify-between border-b border-neutral-300 px-4 py-2"
@@ -69,9 +69,9 @@ const previewStanza = appStore.hymns[0]!.stanzas[0]!;
       <div class="w-full flex items-center justify-between">
         <p>Theme</p>
         <div class="border border-neutral-300 p-1 rounded-full">
-          <div class="relative h-[30px] flex items-center">
+          <div class="relative h-7.5  flex items-center">
             <div
-              class="absolute top-0 left-0 w-[50px] h-full bg-red-100 transition-transform duration-300 ease-out rounded-full"
+              class="absolute top-0 left-0 w-12.5 h-full bg-red-100 transition-transform duration-300 ease-out rounded-full"
               :style="{ transform: `translateX(${themeIndex * 100}%)` }"
             ></div>
             <button
@@ -79,7 +79,7 @@ const previewStanza = appStore.hymns[0]!.stanzas[0]!;
               :key="option.value"
               :aria-label="`${option.value} theme`"
               :aria-pressed="appStore.theme === option.value"
-              class="relative z-10 w-[50px] h-full flex items-center justify-center text-sm"
+              class="relative z-10 w-12.5 h-full flex items-center justify-center text-sm"
               @click="appStore.setTheme(option.value)"
             >
               <Icon v-if="option.icon" :name="option.icon" size="20" />
