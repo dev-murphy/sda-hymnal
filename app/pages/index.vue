@@ -18,11 +18,8 @@ const visibilityColumns: {
 const filterOptions: { label: string; flag: HymnFilterFlag; disabled?: boolean }[] = [
   { label: "Favorites", flag: "favorites" },
   { label: "Recently Viewed", flag: "recentlyViewed" },
-  // no data to back this yet
-  { label: "Recently Added", flag: "recentlyAdded", disabled: true },
 ];
 
-// Static image for the home page; hymn pages generate their own via defineOgImage
 const siteConfig = useSiteConfig();
 useSeoMeta({
   ogImage: {
@@ -192,7 +189,7 @@ useSeoMeta({
                 </template>
 
                 <template #menu="{ triggerEvent }">
-                  <div class="">
+                  <div>
                     <div
                       class="w-50 flex items-center p-2 border-b border-neutral-200"
                     >
