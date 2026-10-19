@@ -41,26 +41,38 @@ const selectedFont = computed({
   set: (font: Option<string>) => appStore.setFontFamily(font.value),
 });
 
-// the font family tooltip stays hidden while its menu is open
 const isFontMenuOpen = ref(false);
-
-// first verse of the first hymn shows the current font settings
 const previewStanza = appStore.hymns[0]!.stanzas[0]!;
+
+const dialogRef = useTemplateRef<HTMLDialogElement>("settings-dialog");
+let pressedBackdrop = false;
+function onDialogPointerDown(event: PointerEvent) {
+  pressedBackdrop = event.target === dialogRef.value;
+}
+function onDialogClick(event: MouseEvent) {
+  if (pressedBackdrop && event.target === dialogRef.value) {
+    dialogRef.value?.close();
+  }
+  pressedBackdrop = false;
+}
 </script>
 
 <template>
   <dialog
     id="settings-dialog"
-    class="w-125 max-w-[calc(100vw-2rem)] open:flex flex-col items-center overflow-visible rounded-xl shadow-lg"
+    ref="settings-dialog"
+    class="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 open:flex flex-col items-center overflow-visible rounded-xl shadow-lg"
+    @pointerdown="onDialogPointerDown"
+    @click="onDialogClick"
   >
     <div
       class="w-full flex items-center justify-between border-b border-neutral-300 px-4 py-2"
     >
-      <h2 class="font-[Archivo] text-2xl">Settings</h2>
+      <h2 class="font-[Archivo] text-2xl select-none">Settings</h2>
       <button
         commandfor="settings-dialog"
         command="close"
-        class="grid place-item-center"
+        class="grid place-item-center cursor-pointer"
       >
         <Icon name="tabler:x" size="24" />
       </button>
@@ -69,17 +81,33 @@ const previewStanza = appStore.hymns[0]!.stanzas[0]!;
       <div class="w-full flex items-center justify-between">
         <p>Theme</p>
         <div class="border border-neutral-300 p-1 rounded-full">
-          <div class="relative h-7.5  flex items-center">
+          <div class="relative h-7.5 flex items-center">
             <div
-              class="absolute top-0 left-0 w-12.5 h-full bg-red-100 transition-transform duration-300 ease-out rounded-full"
+              aria-hidden="true"
+              class="absolute top-0 left-0 z-10 w-12.5 h-full bg-black transition-transform duration-300 ease-out select-none pointer-events-none overflow-hidden rounded-full"
               :style="{ transform: `translateX(${themeIndex * 100}%)` }"
-            ></div>
+            >
+              <div
+                class="absolute inset-0 transition-transform duration-300 ease-out"
+                :style="{ transform: `translateX(${-themeIndex * 100}%)` }"
+              >
+                <span
+                  v-for="(option, index) in themeOptions"
+                  :key="option.value"
+                  class="absolute top-0 w-full h-full flex items-center justify-center text-white text-sm"
+                  :style="{ left: `${index * 100}%` }"
+                >
+                  <Icon v-if="option.icon" :name="option.icon" size="20" />
+                  <template v-else>{{ option.name }}</template>
+                </span>
+              </div>
+            </div>
             <button
               v-for="option in themeOptions"
               :key="option.value"
               :aria-label="`${option.value} theme`"
               :aria-pressed="appStore.theme === option.value"
-              class="relative z-10 w-12.5 h-full flex items-center justify-center text-sm"
+              class="w-12.5 h-full flex items-center justify-center text-sm"
               @click="appStore.setTheme(option.value)"
             >
               <Icon v-if="option.icon" :name="option.icon" size="20" />
@@ -109,7 +137,7 @@ const previewStanza = appStore.hymns[0]!.stanzas[0]!;
       <div
         class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
       >
-        <p>Default Font Settings</p>
+        <p>Font Settings</p>
         <div class="flex items-center gap-x-2">
           <XTooltip text="Font family">
             <template #default="{ triggerOpen, triggerClose }">
@@ -215,3 +243,11 @@ const previewStanza = appStore.hymns[0]!.stanzas[0]!;
     </div>
   </dialog>
 </template>
+
+<style scoped>
+@reference "tailwindcss";
+
+dialog::backdrop {
+  @apply backdrop-blur-sm;
+}
+</style>
