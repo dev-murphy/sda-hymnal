@@ -50,13 +50,6 @@ const selectedFont = computed({
   set: (font: Option<string>) => appStore.setFontFamily(font.value),
 });
 
-const onFontSizeChange = (event: Event) => {
-  const input = event.target as HTMLInputElement;
-  appStore.setFontSize(parseFloat(input.value));
-  // reset the field in case the value was clamped or invalid
-  input.value = String(appStore.fontSize);
-};
-
 const { y: scrollY } = useWindowScroll({
   behavior: () => (appStore.reduceMotion ? "instant" : "smooth"),
 });
@@ -205,6 +198,7 @@ const pillsStyle = computed(() => {
   if (collapse.value === 0 || !pillsHeight.value) return {};
   return {
     height: `${lerp(pillsHeight.value, 0)}px`,
+    overflow: "hidden" as const,
     opacity: 1 - collapse.value,
     transform: `scale(${lerp(1, 0.6)})`,
     visibility: collapse.value === 1 ? ("hidden" as const) : undefined,
@@ -318,7 +312,7 @@ defineOgImage("Hymn.takumi", {
           </div>
 
           <div
-            class="origin-top-left overflow-hidden"
+            class="origin-top-left"
             :style="pillsStyle"
             :aria-hidden="collapse === 1"
           >
@@ -379,7 +373,7 @@ defineOgImage("Hymn.takumi", {
     </div>
 
     <div class="flex items-center justify-between py-2">
-      <div class="w-full max-w-5xl flex items-center justify-between mx-auto">
+      <div class="w-full max-w-5xl flex items-center mx-auto">
         <AudioPlayer
           :hymn="hymn"
           type="inline"
@@ -387,75 +381,21 @@ defineOgImage("Hymn.takumi", {
           hide-extra-controls
           manual-play
         />
-        <div class="flex items-center gap-x-2">
-          <XDropdown
-            id="font-family"
-            v-model="selectedFont"
-            :options="fontOptions"
-            alignment="right"
-            text-styles="text-left text-sm"
-            is-searchable
-            search-input-placeholder="Search fonts"
-          />
 
-          <!-- Font Size -->
-          <div
-            class="flex items-center border border-neutral-300 divide-x divide-neutral-200 rounded-md"
-          >
-            <XTooltip text="Font decrease">
-              <template #default="{ triggerOpen, triggerClose }">
-                <button
-                  class="grid place-items-center px-1.5 disabled:opacity-40"
-                  :disabled="appStore.fontSize <= 12"
-                  aria-label="Decrease font size"
-                  @click="appStore.decreaseFontSize()"
-                  @mouseenter="triggerOpen"
-                  @mouseleave="triggerClose"
-                >
-                  <Icon name="tabler:plus" size="20" />
-                </button>
-              </template>
-            </XTooltip>
-            <XTooltip text="Font Size">
-              <template #default="{ triggerOpen, triggerClose }">
-                <label
-                  class="relative flex items-center gap-x-1 px-1 my-1.5 text-sm"
-                  @mouseenter="triggerOpen"
-                  @mouseleave="triggerClose"
-                >
-                  <input
-                    :value="appStore.fontSize"
-                    type="number"
-                    min="12"
-                    max="48"
-                    class="w-12 px-1 text-left outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                    aria-label="Font size"
-                    @change="onFontSizeChange"
-                    @keydown.enter="($event.target as HTMLInputElement).blur()"
-                  />
-                  <span
-                    class="absolute top-1/2 -translate-y-1/2 right-2 text-neutral-400"
-                    >px</span
-                  >
-                </label>
-              </template>
-            </XTooltip>
-            <XTooltip text="Font increase">
-              <template #default="{ triggerOpen, triggerClose }">
-                <button
-                  class="grid place-items-center px-1.5 disabled:opacity-40"
-                  :disabled="appStore.fontSize >= 48"
-                  aria-label="Increase font size"
-                  @click="appStore.increaseFontSize()"
-                  @mouseenter="triggerOpen"
-                  @mouseleave="triggerClose"
-                >
-                  <Icon name="tabler:minus" size="20" />
-                </button>
-              </template>
-            </XTooltip>
-          </div>
-        </div>
+        <XTooltip text="Settings">
+            <template #default="{ triggerOpen, triggerClose }">
+              <button
+                command="show-modal"
+                commandfor="settings-dialog"
+                class="flex items-center bg-neutral-200 p-1.5 rounded-full"
+                @mouseenter="triggerOpen"
+                @mouseleave="triggerClose"
+                @click="triggerClose"
+              >
+                <Icon name="tabler:settings" size="18" />
+              </button>
+            </template>
+          </XTooltip>
       </div>
     </div>
 
