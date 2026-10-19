@@ -177,6 +177,7 @@ useSeoMeta({
                   <button
                     @mouseenter="!isOpen && triggerOpen()"
                     @mouseleave="triggerClose()"
+                    class="flex items-center justify-center"
                     @click="
                       () => {
                         triggerEvent();
@@ -244,7 +245,7 @@ useSeoMeta({
               <button
                 command="show-modal"
                 commandfor="settings-dialog"
-                class="flex items-center"
+                class="flex items-center justify-center"
                 @mouseenter="triggerOpen"
                 @mouseleave="triggerClose"
                 @click="triggerClose"
