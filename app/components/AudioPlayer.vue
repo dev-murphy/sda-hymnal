@@ -211,10 +211,11 @@ onUnmounted(() => {
 <template>
   <div
     :class="[
-      'bg-white',
       {
+        // inline sits on its page's own background
         'relative w-125 shrink-0 py-2': type === 'inline',
-        'absolute bottom-0 left-0 translate-y-2 w-200 max-w-[calc(100vw-90px)] border border-neutral-300 p-2 rounded-xl shadow-lg':
+        // floats over the hymn table, so it needs its own
+        'absolute bottom-0 left-0 translate-y-2 w-200 max-w-[calc(100vw-90px)] bg-white border border-neutral-300 p-2 rounded-xl shadow-lg':
           type === 'fixed',
       },
     ]"

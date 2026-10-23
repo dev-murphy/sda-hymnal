@@ -285,9 +285,13 @@ watch(rows, () => {
                   {{ hymn?.subcategory }}
                 </NuxtLink>
               </td>
-              <td v-if="appStore.visibility.author">{{ hymn?.author }}</td>
-              <td v-if="appStore.visibility.composer">{{ hymn?.composer }}</td>
-              <td v-if="appStore.visibility.key">
+              <td v-if="appStore.visibility.author" class="text-neutral-500">
+                {{ hymn?.author }}
+              </td>
+              <td v-if="appStore.visibility.composer" class="text-neutral-500">
+                {{ hymn?.composer }}
+              </td>
+              <td v-if="appStore.visibility.key" class="text-neutral-500">
                 {{ hymn?.key }}
               </td>
               <td

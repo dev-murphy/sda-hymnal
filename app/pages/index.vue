@@ -119,18 +119,51 @@ useSeoMeta({
 <template>
   <div class="min-h-screen flex flex-col pb-10 accent-wash">
     <div class="w-full max-w-310 mt-auto mb-2 mx-auto">
-      <h1 class="text-4xl font-black font-[Epilogue] pb-2">
-        Seventh-day Adventist Hymnals
-      </h1>
-      <p class="w-2/3 text-sm font-[Spectral] mb-10">
-        Make a joyful noise unto the LORD, all ye lands. Serve the LORD with
-        gladness: Come before his presence with singing. Know ye that the LORD
-        he is God: It is he that hath made us, and not we ourselves; We are his
-        people, and the sheep of his pasture. Enter into his gates with
-        thanksgiving, And into his courts with praise: Be thankful unto him, and
-        bless his name. For the LORD is good; his mercy is everlasting; And his
-        truth endureth to all generations.
-      </p>
+      <!-- title and psalm side by side on wide screens, so the table stays in view -->
+      <header
+        class="relative mb-8 grid gap-y-4 gap-x-12 md:grid-cols-[auto_1fr] md:items-end"
+      >
+        <!-- faded logo, like the search dialog's empty state -->
+        <img
+          src="/favicon.svg"
+          alt=""
+          aria-hidden="true"
+          class="hero-logo pointer-events-none absolute -top-10 right-0 hidden md:block size-56 opacity-[0.06] grayscale"
+        />
+
+        <h1
+          class="hero-rise relative font-[Epilogue] font-black leading-[0.9] tracking-tight"
+        >
+          <span
+            class="block mb-1 text-xl md:text-2xl text-neutral-500 font-bold tracking-normal"
+          >
+            Seventh-day Adventist
+          </span>
+          <span class="accent-gradient-text text-6xl md:text-7xl">Hymnal</span>
+        </h1>
+
+        <figure
+          class="hero-rise relative max-w-2xl pl-4 border-l-2 border-accent"
+          style="animation-delay: 100ms"
+        >
+          <blockquote
+            class="text-sm text-neutral-600 font-[Spectral] italic leading-relaxed"
+          >
+            Make a joyful noise unto the LORD, all ye lands. Serve the LORD with
+            gladness: Come before his presence with singing. Know ye that the
+            LORD he is God: It is he that hath made us, and not we ourselves; We
+            are his people, and the sheep of his pasture. Enter into his gates
+            with thanksgiving, And into his courts with praise: Be thankful unto
+            him, and bless his name. For the LORD is good; his mercy is
+            everlasting; And his truth endureth to all generations.
+          </blockquote>
+          <figcaption
+            class="mt-1.5 text-xs text-neutral-400 font-[Archivo] tracking-widest uppercase"
+          >
+            Psalm 100
+          </figcaption>
+        </figure>
+      </header>
 
       <div class="flex items-center border-b border-neutral-200">
         <button
@@ -138,11 +171,6 @@ useSeoMeta({
         >
           <Icon name="tabler:list" size="15" />
           Hymns
-        </button>
-        <button
-          class="relative flex items-center gap-x-1 py-3 px-3 text-neutral-300 cursor-not-allowed"
-        >
-          <Icon name="solar:pen-new-square-bold" size="15" />Edited
         </button>
 
         <div class="ml-auto flex items-center gap-x-2">
@@ -349,6 +377,37 @@ useSeoMeta({
 
 <style scoped>
 @reference "tailwindcss";
+
+/* heading parts rise in one after another on load */
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    translate: 0 12px;
+    filter: blur(4px);
+  }
+}
+.hero-rise {
+  animation: hero-rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes hero-logo {
+  from {
+    opacity: 0;
+    scale: 0.92;
+    rotate: -6deg;
+  }
+}
+.hero-logo {
+  animation: hero-logo 1.2s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-rise,
+  .hero-logo {
+    animation: none;
+  }
+}
+
 .current-tab::before {
   content: "";
   position: absolute;

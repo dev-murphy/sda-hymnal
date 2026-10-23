@@ -268,9 +268,10 @@ defineOgImage("Hymn.takumi", {
 
 <template>
   <div v-if="hymn" ref="page" class="min-h-screen flex flex-col accent-wash">
-    <div ref="nav" class="pt-5">
+    <!-- same background as the header below, so the two read as one block -->
+    <div ref="nav" class="pt-5 bg-white">
       <div class="w-full max-w-5xl mx-auto">
-        <div class="flex">
+        <div class="flex items-center justify-between gap-x-2">
           <NuxtLink
             to="/"
             class="w-fit flex items-center gap-x-1 border border-neutral-300 hover:border-accent px-2 p-0.5 text-sm transition-colors rounded-md"
@@ -467,7 +468,7 @@ defineOgImage("Hymn.takumi", {
         class="space-y-1"
       >
         <p
-          class="font-black"
+          class="font-black text-neutral-400"
           :style="{ fontSize: `${appStore.stanzaLabelFontSize}px` }"
         >
           {{ formatVerseType(stanza.type) }}
@@ -508,14 +509,20 @@ defineOgImage("Hymn.takumi", {
         <NuxtLink
           v-if="appStore.previousHymn(getHymnNo)"
           :to="`${getHymnNo - 1}-${slugify(appStore.previousHymn(getHymnNo)?.title)}`"
-          class="cursor-pointer"
+          class="hymn-step group cursor-pointer"
         >
           <p class="w-max flex flex-col">
-            <span class="flex items-center gap-x-0.5 -mb-1 text-sm">
-              <Icon name="tabler:arrow-left" size="14" />
+            <span
+              class="flex items-center gap-x-0.5 -mb-1 text-sm text-neutral-500 group-hover:text-accent-text group-focus-visible:text-accent-text transition-colors"
+            >
+              <Icon
+                name="tabler:arrow-left"
+                size="14"
+                class="transition-transform duration-200 motion-safe:group-hover:-translate-x-1 motion-safe:group-focus-visible:-translate-x-1"
+              />
               Previous
             </span>
-            <span class="text-xl">{{
+            <span class="hymn-step-title text-xl">{{
               appStore.previousHymn(getHymnNo)?.title
             }}</span>
           </p>
@@ -523,14 +530,20 @@ defineOgImage("Hymn.takumi", {
         <NuxtLink
           v-if="appStore.nextHymn(getHymnNo)"
           :to="`${getHymnNo + 1}-${slugify(appStore.nextHymn(getHymnNo)?.title)}`"
-          class="cursor-pointer ml-auto"
+          class="hymn-step hymn-step-next group cursor-pointer ml-auto"
         >
-          <p class="w-max flex flex-col">
-            <span class="flex items-center justify-end gap-x-0.5 -mb-1 text-sm">
+          <p class="w-max flex flex-col items-end">
+            <span
+              class="flex items-center justify-end gap-x-0.5 -mb-1 text-sm text-neutral-500 group-hover:text-accent-text group-focus-visible:text-accent-text transition-colors"
+            >
               Next
-              <Icon name="tabler:arrow-right" size="14" />
+              <Icon
+                name="tabler:arrow-right"
+                size="14"
+                class="transition-transform duration-200 motion-safe:group-hover:translate-x-1 motion-safe:group-focus-visible:translate-x-1"
+              />
             </span>
-            <span class="text-xl">{{
+            <span class="hymn-step-title text-xl">{{
               appStore.nextHymn(getHymnNo)?.title
             }}</span>
           </p>
@@ -541,3 +554,55 @@ defineOgImage("Hymn.takumi", {
     <HymnSearchDialog ref="search" @select="goToHymn" />
   </div>
 </template>
+
+<style scoped>
+/* Previous/next: the label and arrow take the accent and the arrow nudges
+   toward where it goes, an accent underline sweeps in from that side, and a
+   press settles the link slightly */
+.hymn-step {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.5rem;
+  outline-offset: 2px;
+  transition:
+    background-color 0.2s ease,
+    scale 0.15s ease;
+}
+
+.hymn-step:hover,
+.hymn-step:focus-visible {
+  background-color: color-mix(in oklab, var(--color-accent) 8%, transparent);
+}
+
+.hymn-step:active {
+  scale: 0.98;
+}
+
+.hymn-step-title {
+  padding-bottom: 2px;
+  background-image: linear-gradient(
+    to right,
+    var(--color-accent),
+    var(--color-accent-to)
+  );
+  background-repeat: no-repeat;
+  background-position: left bottom;
+  background-size: 0% 2px;
+  transition: background-size 0.3s ease-out;
+}
+
+.hymn-step-next .hymn-step-title {
+  background-position: right bottom;
+}
+
+.hymn-step:hover .hymn-step-title,
+.hymn-step:focus-visible .hymn-step-title {
+  background-size: 100% 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hymn-step,
+  .hymn-step-title {
+    transition: none;
+  }
+}
+</style>
