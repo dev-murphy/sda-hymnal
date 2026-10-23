@@ -2,7 +2,8 @@
 const props = withDefaults(
   defineProps<{
     id: string;
-    modelValue: Option<T>;
+    // undefined while nothing is selected
+    modelValue?: Option<T>;
     options: Option<T>[];
     direction?: "bottom" | "top";
     alignment?: "left" | "right" | "center";
@@ -42,7 +43,7 @@ const filteredOptions = computed(() => {
   const search = searchText.value.trim().toLowerCase();
 
   return props.options.filter((option) => {
-    if (!props.showAllOptions && option.name === props.modelValue.name)
+    if (!props.showAllOptions && option.name === props.modelValue?.name)
       return false;
     return !search || option.name.toLowerCase().includes(search);
   });
@@ -65,10 +66,10 @@ onClickOutside(dropdownMenuRef, () => {
     <button
       v-else
       class="w-fit flex items-center gap-x-1 border border-neutral-300 font-[Archivo] text-sm px-2 py-1.5 select-none shadow cursor-pointer rounded-md"
-      :style="modelValue.style"
+      :style="modelValue?.style"
       @click="toggleIsOpen()"
     >
-      {{ modelValue.name }}
+      {{ modelValue?.name }}
       <Icon
         name="tabler:chevron-down"
         size="18"
@@ -89,16 +90,16 @@ onClickOutside(dropdownMenuRef, () => {
         },
       ]"
     >
-      <div v-if="isSearchable" class="relative">
-        <input
-          type="text"
-          :placeholder="searchInputPlaceholder"
+      <div v-if="isSearchable" class="relative w-full mb-0.5">
+        <XInput
           v-model="searchText"
-          class="px-1 py-1 border border-neutral-300 text-sm font-[Archivo] outline-none rounded-md"
+          :placeholder="searchInputPlaceholder"
+          class="pr-8 font-[Archivo]"
         />
         <button
           v-if="searchText"
-          class="group absolute top-1/2 -translate-y-1/2 right-1 flex items-center justify-center hover:bg-red-200/50 p-0.5 transition-colors rounded-md"
+          aria-label="Clear search"
+          class="group absolute top-1/2 -translate-y-1/2 right-1.5 flex items-center justify-center hover:bg-red-200/50 p-0.5 transition-colors rounded-md"
           @click="clearSearch"
         >
           <Icon name="tabler:x" size="16" class="group-hover:text-red-500" />
@@ -112,12 +113,12 @@ onClickOutside(dropdownMenuRef, () => {
             `flex items-center gap-x-1 px-3 py-0.5 rounded-md`,
             textStyles,
             {
-              'bg-neutral-200': modelValue.name === option.name,
-              'hover:bg-neutral-100': modelValue.name !== option.name,
+              'bg-neutral-200': modelValue?.name === option.name,
+              'hover:bg-neutral-100': modelValue?.name !== option.name,
             },
           ]"
           :style="option.style"
-          :disabled="modelValue.name === option.name"
+          :disabled="modelValue?.name === option.name"
           @click="setDropdownOption(option)"
         >
           <Icon v-if="option.icon" v-bind="option.icon" />
