@@ -42,6 +42,22 @@ const selectedFont = computed({
 });
 
 const isFontMenuOpen = ref(false);
+
+// the presenting page has its own typography, independent of the hymn page
+const selectedPresentationFont = computed({
+  get: () =>
+    fontOptions.find(
+      (font) => font.value === appStore.presentation.fontFamily,
+    ) ?? fontOptions[0]!,
+  set: (font: Option<string>) => appStore.setPresentationFontFamily(font.value),
+});
+
+function updatePresentationFontSize(event: Event) {
+  const input = event.target as HTMLInputElement;
+  appStore.setPresentationFontSize(parseFloat(input.value));
+  input.value = String(appStore.presentation.fontSize);
+}
+
 const previewStanza = appStore.hymns[0]!.stanzas[0]!;
 
 const dialogRef = useTemplateRef<HTMLDialogElement>("settings-dialog");
@@ -142,10 +158,13 @@ function onDialogClick(event: MouseEvent) {
           text-styles="text-left text-sm"
         />
       </div>
+      <h3 class="mt-2 pt-3 border-t border-neutral-200 text-xs font-[Archivo] font-black tracking-widest text-neutral-500 uppercase select-none">
+        Hymn page
+      </h3>
       <div
         class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
       >
-        <p>Font Settings</p>
+        <p>Font</p>
         <div class="flex items-center gap-x-2">
           <XTooltip text="Font family">
             <template #default="{ triggerOpen, triggerClose }">
@@ -246,6 +265,99 @@ function onDialogClick(event: MouseEvent) {
           >
             {{ previewStanza.text }}
           </p>
+        </div>
+      </div>
+      <h3 class="mt-2 pt-3 border-t border-neutral-200 text-xs font-[Archivo] font-black tracking-widest text-neutral-500 uppercase select-none">
+        Presentation
+      </h3>
+      <div class="flex items-center justify-between gap-x-2">
+        <p>Font</p>
+        <XDropdown
+          id="presentation-font-family"
+          v-model="selectedPresentationFont"
+          :options="fontOptions"
+          alignment="right"
+          text-styles="text-left text-sm"
+          is-searchable
+          search-input-placeholder="Search fonts"
+        />
+      </div>
+      <div class="flex items-center justify-between">
+        <p>Fit text to screen</p>
+        <XToggle
+          :model-value="appStore.presentation.autoFit"
+          label="Fit text to screen"
+          @update:model-value="appStore.setPresentationAutoFit"
+        />
+      </div>
+      <div
+        v-if="appStore.presentation.autoFit"
+        class="flex items-center justify-between gap-x-4"
+      >
+        <p>Text height</p>
+        <div class="w-48 flex items-center gap-x-2">
+          <XRangeSlider
+            :model-value="appStore.presentation.fitScale"
+            :min="PRESENTATION_FIT_SCALE.min"
+            :max="PRESENTATION_FIT_SCALE.max"
+            :step="PRESENTATION_FIT_SCALE.step"
+            aria-label="Text height"
+            class="grow"
+            @update:model-value="appStore.setPresentationFitScale"
+          />
+          <span class="w-9 text-right text-sm tabular-nums">
+            {{ appStore.presentation.fitScale }}%
+          </span>
+        </div>
+      </div>
+      <div v-else class="flex items-center justify-between">
+        <p>Text size</p>
+        <div
+          class="flex items-center border border-neutral-300 divide-x divide-neutral-200 rounded-md"
+        >
+          <button
+            class="grid place-items-center px-1.5 disabled:opacity-40"
+            :disabled="
+              appStore.presentation.fontSize <= PRESENTATION_FONT_SIZE.min
+            "
+            aria-label="Decrease text size"
+            @click="
+              appStore.setPresentationFontSize(
+                appStore.presentation.fontSize - PRESENTATION_FONT_SIZE.step,
+              )
+            "
+          >
+            <Icon name="tabler:minus" size="20" />
+          </button>
+          <label class="relative flex items-center px-1 my-1.5 text-sm">
+            <input
+              :value="appStore.presentation.fontSize"
+              type="number"
+              :min="PRESENTATION_FONT_SIZE.min"
+              :max="PRESENTATION_FONT_SIZE.max"
+              class="w-14 px-1 text-left outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+              aria-label="Text size"
+              @change="updatePresentationFontSize"
+            />
+            <span
+              class="absolute top-1/2 -translate-y-1/2 right-2 text-neutral-400"
+              >px</span
+            >
+          </label>
+          <button
+            class="grid place-items-center px-1.5 disabled:opacity-40"
+            :disabled="
+              appStore.presentation.fontSize >= PRESENTATION_FONT_SIZE.max
+            "
+            aria-label="Increase text size"
+            @click="
+              appStore.setPresentationFontSize(
+                appStore.presentation.fontSize + PRESENTATION_FONT_SIZE.step,
+              )
+            "
+          >
+            <Icon name="tabler:plus" size="20" />
+          </button>
         </div>
       </div>
     </div>

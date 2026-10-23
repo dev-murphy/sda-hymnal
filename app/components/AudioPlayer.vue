@@ -15,6 +15,11 @@ const props = withDefaults(
   },
 );
 
+const emit = defineEmits<{
+  // playback position in seconds, every frame while playing (for synced lyrics)
+  timeupdate: [time: number];
+}>();
+
 const appStore = useAppStore();
 
 const AUDIO_BASE_URL =
@@ -72,6 +77,16 @@ function seek(time: number) {
   audio.currentTime = time;
   currentTime.value = time;
 }
+
+watch(currentTime, (time) => emit("timeupdate", time));
+
+// the audio element's own timeupdate only fires a few times a second
+const { resume: startTimeLoop, pause: stopTimeLoop } = useRafFn(
+  () => {
+    if (audioRef.value) currentTime.value = audioRef.value.currentTime;
+  },
+  { immediate: false },
+);
 
 watch(volume, (value) => {
   if (value > 0) previousVolume.value = value;
@@ -139,10 +154,12 @@ onMounted(() => {
   });
 
   audio.addEventListener("pause", () => {
+    stopTimeLoop();
     if (audio.paused) appStore.setIsPlaying(false);
   });
 
   audio.addEventListener("ended", () => {
+    stopTimeLoop();
     appStore.setIsPlaying(false);
     currentTime.value = 0;
   });
@@ -165,6 +182,7 @@ onMounted(() => {
 
   audio.addEventListener("playing", () => {
     isLoading.value = false;
+    startTimeLoop();
   });
 
   audio.addEventListener("error", () => {
@@ -175,7 +193,10 @@ onMounted(() => {
   setAudioSource();
 });
 
+defineExpose({ seek });
+
 onUnmounted(() => {
+  stopTimeLoop();
   const audio = audioRef.value;
 
   if (audio) {
@@ -348,7 +369,13 @@ onUnmounted(() => {
                 v-if="!hideExtraControls"
                 class="grid shrink-0 place-items-center bg-black/10 p-2 disabled:text-neutral-400 disabled:cursor-not-allowed rounded-full"
                 aria-label="Expand"
-                :disabled="isDisabled"
+                :disabled="isDisabled || !hymn"
+                @click="
+                  hymn &&
+                  navigateTo(
+                    `/present/${hymn.hymn_number}-${slugify(hymn.title)}`,
+                  )
+                "
                 @mouseenter="triggerOpen"
                 @mouseleave="triggerClose"
               >

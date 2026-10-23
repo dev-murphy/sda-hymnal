@@ -61,6 +61,10 @@ const noMenuSelection: Option<string> = { name: "", value: "" };
 
 function handleMenuAction(option: Option<string>, hymnNo: number) {
   if (option.value === "favorite") appStore.toggleFavorite(hymnNo);
+  if (option.value === "present") {
+    const hymn = appStore.currentHymn(hymnNo);
+    if (hymn) navigateTo(`/present/${hymnNo}-${slugify(hymn.title)}`);
+  }
 }
 
 const hymnTableRef = ref<HTMLElement | null>();

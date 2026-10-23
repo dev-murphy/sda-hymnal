@@ -279,29 +279,12 @@ defineOgImage("Hymn.takumi", {
             All Hymns
           </NuxtLink>
 
-          <div class="flex items-center gap-x-2 text-sm ml-auto">
-            <NuxtLink
-              v-if="appStore.previousHymn(getHymnNo)"
-              :to="`${getHymnNo - 1}-${slugify(appStore.previousHymn(getHymnNo)?.title)}`"
-              class="w-fit flex items-center gap-x-2 px-2 py-0.5 border border-neutral-200 rounded-md"
-            >
-              <Icon name="tabler:arrow-left" size="16" />
-              #{{ hymn.hymn_number - 1 }}
-            </NuxtLink>
-            <NuxtLink
-              v-if="appStore.nextHymn(getHymnNo)"
-              :to="`${getHymnNo + 1}-${slugify(appStore.nextHymn(getHymnNo)?.title)}`"
-              class="w-fit flex items-center gap-x-2 px-2 py-0.5 border border-neutral-200 rounded-md"
-            >
-              #{{ hymn.hymn_number + 1
-              }}<Icon name="tabler:arrow-right" size="16"
-            /></NuxtLink>
-            <button
-              class="w-fit flex items-center gap-x-2 px-2 py-0.5 border border-neutral-200 rounded-md"
-            >
-              Present <Icon name="tabler:arrows-diagonal" size="16" />
-            </button>
-          </div>
+          <NuxtLink
+            :to="`/present/${hymn?.hymn_number}-${slugify(hymn?.title)}`"
+            class="w-fit flex items-center gap-x-2 px-2 py-0.5 border border-neutral-200 rounded-md"
+          >
+            Present <Icon name="tabler:arrows-diagonal" size="16" />
+          </NuxtLink>
         </div>
       </div>
     </div>
@@ -339,12 +322,13 @@ defineOgImage("Hymn.takumi", {
               </h1>
             </div>
 
-            <button
+            <NuxtLink
+              :to="`/present/${hymn?.hymn_number}-${slugify(hymn?.title)}`"
               class="shrink-0 w-fit flex items-center gap-x-2 px-2 py-0.5 ml-2 text-sm border border-neutral-200 rounded-md"
               :style="compactActionStyle"
             >
               Present <Icon name="tabler:arrows-diagonal" size="16" />
-            </button>
+            </NuxtLink>
           </div>
 
           <div

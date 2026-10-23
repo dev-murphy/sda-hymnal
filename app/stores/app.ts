@@ -21,6 +21,19 @@ export const useAppStore = defineStore("app", {
     isPlaying: false,
     fontSize: 16,
     fontFamily: "Archivo",
+    // separate from the hymn page font settings above
+    presentation: {
+      fontFamily: "Archivo",
+      // auto fits each hymn to fill fitScale% of the stage's height (see useFitFontSize);
+      // otherwise fontSize is used as is
+      autoFit: true,
+      fitScale: PRESENTATION_FIT_SCALE.max,
+      fontSize: 48,
+    },
+    spotify: {
+      fontFamily: "Archivo",
+      fontSize: 24,
+    },
     theme: "auto" as Theme,
     reduceMotion: false,
     favorites: [] as number[],
@@ -301,6 +314,29 @@ export const useAppStore = defineStore("app", {
     },
     decreaseFontSize() {
       this.setFontSize(this.fontSize - 2);
+    },
+    setPresentationFontSize(size: number) {
+      if (isNaN(size)) return;
+      const { min, max } = PRESENTATION_FONT_SIZE;
+      this.presentation.fontSize = Math.min(Math.max(Math.round(size), min), max);
+    },
+    setPresentationFontFamily(fontFamily: string) {
+      this.presentation.fontFamily = fontFamily;
+    },
+    setPresentationAutoFit(value: boolean) {
+      this.presentation.autoFit = value;
+    },
+    setPresentationFitScale(scale: number) {
+      if (isNaN(scale)) return;
+      const { min, max } = PRESENTATION_FIT_SCALE;
+      this.presentation.fitScale = Math.min(Math.max(Math.round(scale), min), max);
+    },
+    setSpotifyFontSize(size: number) {
+      if (isNaN(size)) return;
+      this.spotify.fontSize = Math.min(Math.max(Math.round(size), 12), 64);
+    },
+    setSpotifyFontFamily(fontFamily: string) {
+      this.spotify.fontFamily = fontFamily;
     },
     setNextHymn() {
       if (this.selectedHymn !== null && this.selectedHymn < 695) {
