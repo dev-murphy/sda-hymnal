@@ -80,6 +80,12 @@ const filterDescription = () =>
     ? `Browse Seventh-day Adventist hymns in ${filterName.value} - SDA Hymnal`
     : undefined;
 
+const searchInputRef = useTemplateRef<HTMLInputElement>("search-input");
+const { label: searchShortcut } = useShortcut("k", () =>
+  searchInputRef.value?.select(),
+);
+const { label: settingsShortcut } = useShortcut(",");
+
 const siteConfig = useSiteConfig();
 useHead({
   link: [
@@ -140,7 +146,7 @@ useSeoMeta({
         </button>
 
         <div class="ml-auto flex items-center gap-x-2">
-          <XTooltip text="Search" alignment="center">
+          <XTooltip :text="`Search (${searchShortcut})`" alignment="center">
             <template #default="{ triggerOpen, triggerClose }">
               <div
                 @mouseenter="!appStore.searchText && triggerOpen()"
@@ -159,6 +165,7 @@ useSeoMeta({
                 />
                 <input
                   id="search"
+                  ref="search-input"
                   type="text"
                   v-model="appStore.searchText"
                   @input="triggerClose()"
@@ -318,7 +325,7 @@ useSeoMeta({
             </template>
           </XTooltip>
 
-          <XTooltip text="Settings">
+          <XTooltip :text="`Settings (${settingsShortcut})`">
             <template #default="{ triggerOpen, triggerClose }">
               <button
                 command="show-modal"

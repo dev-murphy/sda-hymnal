@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { Option } from "~/types";
+import type { HymnData, Option } from "~/types";
 
 const appStore = useAppStore();
 const route = useRoute();
@@ -54,6 +54,37 @@ const selectedFont = computed({
 function clearSearch() {
   appStore.searchText = "";
 }
+
+const { label: settingsShortcut } = useShortcut(",");
+
+// Search: the dialog handles ⌘K itself; this is only the tooltip label
+const searchRef = useTemplateRef<{ open: () => void }>("search");
+const { label: searchShortcut } = useShortcut("k");
+
+const hymnPath = (target: HymnData[number] | undefined) =>
+  target && `/hymn/${target.hymn_number}-${slugify(target.title)}`;
+
+function goToHymn(target: HymnData[number] | undefined) {
+  const path = hymnPath(target);
+  if (path && target!.hymn_number !== getHymnNo.value) navigateTo(path);
+}
+
+// ←/→ step through the hymnal
+useEventListener("keydown", (event: KeyboardEvent) => {
+  if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey)
+    return;
+  if (event.shiftKey || isTypingTarget(event.target)) return;
+  // the search and settings dialogs handle their own keys
+  if (document.querySelector("dialog[open]")) return;
+
+  if (event.key === "ArrowLeft") {
+    event.preventDefault();
+    goToHymn(appStore.previousHymn(getHymnNo.value));
+  } else if (event.key === "ArrowRight") {
+    event.preventDefault();
+    goToHymn(appStore.nextHymn(getHymnNo.value));
+  }
+});
 
 const { y: scrollY } = useWindowScroll({
   behavior: () => (appStore.reduceMotion ? "instant" : "smooth"),
@@ -406,7 +437,26 @@ defineOgImage("Hymn.takumi", {
           manual-play
         />
 
-        <XTooltip text="Settings">
+        <XTooltip :text="`Search (${searchShortcut})`" class="mr-2">
+          <template #default="{ triggerOpen, triggerClose }">
+            <button
+              class="flex items-center bg-neutral-200 p-1.5 rounded-full"
+              aria-label="Search hymns"
+              @mouseenter="triggerOpen"
+              @mouseleave="triggerClose"
+              @click="
+                () => {
+                  triggerClose();
+                  searchRef?.open();
+                }
+              "
+            >
+              <Icon name="tabler:search" size="18" />
+            </button>
+          </template>
+        </XTooltip>
+
+        <XTooltip :text="`Settings (${settingsShortcut})`">
             <template #default="{ triggerOpen, triggerClose }">
               <button
                 command="show-modal"
@@ -503,5 +553,7 @@ defineOgImage("Hymn.takumi", {
         </NuxtLink>
       </div>
     </div>
+
+    <HymnSearchDialog ref="search" @select="goToHymn" />
   </div>
 </template>

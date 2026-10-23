@@ -49,6 +49,14 @@ let pressedBackdrop = false;
 function onDialogPointerDown(event: PointerEvent) {
   pressedBackdrop = event.target === dialogRef.value;
 }
+// toggles, like the settings shortcut in desktop apps
+useShortcut(",", () => {
+  const dialog = dialogRef.value;
+  if (!dialog) return;
+  if (dialog.open) dialog.close();
+  else dialog.showModal();
+});
+
 function onDialogClick(event: MouseEvent) {
   if (pressedBackdrop && event.target === dialogRef.value) {
     dialogRef.value?.close();

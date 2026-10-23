@@ -30,6 +30,15 @@ export function fromCategoryParam(param: string | string[] | undefined) {
   return String(param ?? "").replace(/\+/g, " ");
 }
 
+// keyboard shortcuts leave keys alone while the user is typing in a field
+export function isTypingTarget(target: EventTarget | null) {
+  if (!(target instanceof HTMLElement)) return false;
+  return (
+    target.isContentEditable ||
+    ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName)
+  );
+}
+
 export function formatVerseType(verseType: string) {
   return verseType.replaceAll('_', ' ');
 }
