@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { Option, Theme } from "~/types";
+import type { Accent } from "~/utils/accents";
 
 const appStore = useAppStore();
 
@@ -14,6 +15,22 @@ const themeOptions: { name: string; value: Theme; icon?: string }[] = [
 const themeIndex = computed(() =>
   themeOptions.findIndex((option) => option.value === appStore.theme),
 );
+
+// solid colours first, then gradients, each on its own row
+const accentGroups = (["solid", "gradient"] as const).map((kind) => ({
+  kind,
+  accents: ACCENTS.filter((accent) => accent.kind === kind),
+}));
+
+// light-dark() so the swatch matches the theme in use
+function swatchBackground(accent: Accent) {
+  const [from, to] = [accent.from, accent.to].map(
+    ([light, dark]) => `light-dark(${light}, ${dark})`,
+  );
+  return accent.kind === "gradient"
+    ? `linear-gradient(135deg, ${from}, ${to})`
+    : from;
+}
 
 const selectedLimit = computed({
   get: () =>
@@ -139,6 +156,56 @@ function onDialogClick(event: MouseEvent) {
             </button>
           </div>
         </div>
+      </div>
+      <div class="flex items-start justify-between gap-x-6">
+        <p class="pt-1">Accent</p>
+        <div
+          role="radiogroup"
+          aria-label="Accent"
+          class="flex flex-col items-end gap-y-2"
+        >
+          <div
+            v-for="group in accentGroups"
+            :key="group.kind"
+            class="flex flex-wrap justify-end gap-1.5"
+          >
+            <XTooltip
+              v-for="accent in group.accents"
+              :key="accent.value"
+              :text="accent.name"
+            >
+              <template #default="{ triggerOpen, triggerClose }">
+                <button
+                  role="radio"
+                  :aria-checked="appStore.accent === accent.value"
+                  :aria-label="accent.name"
+                  :class="[
+                    'grid place-items-center size-7 border-2 transition-colors rounded-full',
+                    appStore.accent === accent.value
+                      ? 'border-black'
+                      : 'border-transparent hover:border-neutral-300',
+                  ]"
+                  @click="appStore.setAccent(accent.value)"
+                  @mouseenter="triggerOpen"
+                  @mouseleave="triggerClose"
+                >
+                  <span
+                    class="size-5 rounded-full"
+                    :style="{ background: swatchBackground(accent) }"
+                  />
+                </button>
+              </template>
+            </XTooltip>
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center justify-between">
+        <p>High contrast</p>
+        <XToggle
+          :model-value="appStore.highContrast"
+          label="High contrast"
+          @update:model-value="appStore.setHighContrast"
+        />
       </div>
       <div class="flex items-center justify-between">
         <p>Reduce animations</p>

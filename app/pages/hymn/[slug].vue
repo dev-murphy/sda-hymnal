@@ -267,13 +267,13 @@ defineOgImage("Hymn.takumi", {
 </script>
 
 <template>
-  <div v-if="hymn" ref="page" class="min-h-screen flex flex-col">
+  <div v-if="hymn" ref="page" class="min-h-screen flex flex-col accent-wash">
     <div ref="nav" class="pt-5">
       <div class="w-full max-w-5xl mx-auto">
         <div class="flex">
           <NuxtLink
             to="/"
-            class="w-fit flex items-center gap-x-1 border border-neutral-300 px-2 p-0.5 text-sm rounded-md"
+            class="w-fit flex items-center gap-x-1 border border-neutral-300 hover:border-accent px-2 p-0.5 text-sm transition-colors rounded-md"
           >
             <Icon name="tabler:arrow-left" size="16" />
             All Hymns
@@ -281,7 +281,7 @@ defineOgImage("Hymn.takumi", {
 
           <NuxtLink
             :to="`/present/${hymn?.hymn_number}-${slugify(hymn?.title)}`"
-            class="w-fit flex items-center gap-x-2 px-2 py-0.5 border border-neutral-200 rounded-md"
+            class="w-fit flex items-center gap-x-2 px-2 py-0.5 border border-neutral-200 hover:border-accent transition-colors rounded-md"
           >
             Present <Icon name="tabler:arrows-diagonal" size="16" />
           </NuxtLink>
@@ -302,7 +302,7 @@ defineOgImage("Hymn.takumi", {
           <div class="flex items-center">
             <NuxtLink
               to="/"
-              class="shrink-0 grid place-items-center h-7 overflow-hidden border border-neutral-300 rounded-md"
+              class="shrink-0 grid place-items-center h-7 overflow-hidden border border-neutral-300 hover:border-accent transition-colors rounded-md"
               aria-label="All Hymns"
               :style="backStyle"
             >
@@ -324,7 +324,7 @@ defineOgImage("Hymn.takumi", {
 
             <NuxtLink
               :to="`/present/${hymn?.hymn_number}-${slugify(hymn?.title)}`"
-              class="shrink-0 w-fit flex items-center gap-x-2 px-2 py-0.5 ml-2 text-sm border border-neutral-200 rounded-md"
+              class="shrink-0 w-fit flex items-center gap-x-2 px-2 py-0.5 ml-2 text-sm border border-neutral-200 hover:border-accent transition-colors rounded-md"
               :style="compactActionStyle"
             >
               Present <Icon name="tabler:arrows-diagonal" size="16" />
@@ -350,7 +350,7 @@ defineOgImage("Hymn.takumi", {
                   <template #default="{ triggerOpen, triggerClose }">
                     <NuxtLink
                       :to="categoryPath(hymn?.category)"
-                      class="block py-1.5 px-3 bg-neutral-200 hover:bg-neutral-300 transition-colors cursor-pointer rounded-l-full"
+                      class="block py-1.5 px-3 bg-neutral-200 hover:bg-accent-soft transition-colors cursor-pointer rounded-l-full"
                       @click="clearSearch"
                       @mouseenter="triggerOpen"
                       @mouseleave="triggerClose"
@@ -366,7 +366,7 @@ defineOgImage("Hymn.takumi", {
                   <template #default="{ triggerOpen, triggerClose }">
                     <NuxtLink
                       :to="categoryPath(hymn.category, hymn.subcategory)"
-                      class="relative block py-1.5 px-3 bg-neutral-200 hover:bg-neutral-300 transition-colors cursor-pointer rounded-r-full"
+                      class="relative block py-1.5 px-3 bg-neutral-200 hover:bg-accent-soft transition-colors cursor-pointer rounded-r-full"
                       @click="clearSearch"
                       @mouseenter="triggerOpen"
                       @mouseleave="triggerClose"
@@ -491,7 +491,7 @@ defineOgImage("Hymn.takumi", {
     <Transition name="fade">
       <button
         v-if="scrollY > 200"
-        class="fixed bottom-20 right-6 z-50 grid place-items-center p-2 bg-white border border-neutral-300 shadow-md rounded-full"
+        class="fixed bottom-20 right-6 z-50 grid place-items-center p-2 bg-white border border-neutral-300 hover:border-accent shadow-md transition-colors rounded-full"
         aria-label="Scroll to top"
         @click="scrollToTop"
       >

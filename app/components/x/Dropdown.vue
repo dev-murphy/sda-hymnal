@@ -65,7 +65,7 @@ onClickOutside(dropdownMenuRef, () => {
     <slot v-if="$slots.default" :is-open="isDropdownOpen" :trigger-event="toggleIsOpen" />
     <button
       v-else
-      class="w-fit flex items-center gap-x-1 border border-neutral-300 font-[Archivo] text-sm px-2 py-1.5 select-none shadow cursor-pointer rounded-md"
+      class="w-fit flex items-center gap-x-1 border border-neutral-300 hover:border-accent font-[Archivo] text-sm px-2 py-1.5 select-none shadow cursor-pointer transition-colors rounded-md"
       :style="modelValue?.style"
       @click="toggleIsOpen()"
     >

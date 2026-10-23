@@ -117,7 +117,7 @@ useSeoMeta({
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col pb-10">
+  <div class="min-h-screen flex flex-col pb-10 accent-wash">
     <div class="w-full max-w-310 mt-auto mb-2 mx-auto">
       <h1 class="text-4xl font-black font-[Epilogue] pb-2">
         Seventh-day Adventist Hymnals
@@ -354,7 +354,7 @@ useSeoMeta({
   position: absolute;
 
   width: 50%;
-  background-color: black;
+  background-color: var(--color-accent);
   @apply top-full left-1/2 -translate-x-1/2 -translate-y-full h-0.75 rounded-t-md;
 }
 </style>

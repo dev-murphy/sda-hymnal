@@ -94,11 +94,11 @@ function onKeydown(event: KeyboardEvent) {
         ref="track"
         class="h-2 bg-neutral-300 border border-neutral-400 rounded-full overflow-hidden"
       >
-        <div class="h-full bg-blue-400" :style="{ width: percentage + '%' }"></div>
+        <div class="h-full accent-gradient" :style="{ width: percentage + '%' }"></div>
       </div>
       <div
         :class="[
-          'absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 bg-white border border-blue-500 shadow rounded-full transition-transform group-focus-visible/slider:ring-2 group-focus-visible/slider:ring-blue-300',
+          'absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 bg-[#fff] border border-accent shadow rounded-full transition-transform group-focus-visible/slider:ring-2 group-focus-visible/slider:ring-accent/40',
           { 'scale-125': isDragging },
         ]"
         :style="{ left: percentage + '%' }"

@@ -1,6 +1,5 @@
 <template>
   <svg
-    fill="hsl(228, 97%, 42%)"
     viewBox="0 0 40 4"
     preserveAspectRatio="none"
     xmlns="http://www.w3.org/2000/svg"

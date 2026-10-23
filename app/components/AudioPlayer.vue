@@ -342,7 +342,7 @@ onUnmounted(() => {
             {{ formatTime(currentTime) }} / {{ formatTime(duration) }}
             <LineLoader
               v-if="isLoading"
-              class="pointer-events-none absolute inset-x-0 bottom-0 h-0.75 w-full text-[hsl(228,97%,42%)]"
+              class="pointer-events-none absolute inset-x-0 bottom-0 h-0.75 w-full text-accent"
               aria-hidden="true"
             />
           </p>

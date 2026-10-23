@@ -35,6 +35,9 @@ export const useAppStore = defineStore("app", {
       fontSize: 24,
     },
     theme: "auto" as Theme,
+    // one of ACCENTS (utils/accents.ts)
+    accent: DEFAULT_ACCENT,
+    highContrast: false,
     reduceMotion: false,
     favorites: [] as number[],
     selectedCategory: undefined as Option<string> | undefined,
@@ -271,6 +274,12 @@ export const useAppStore = defineStore("app", {
     },
     setTheme(theme: Theme) {
       this.theme = theme;
+    },
+    setAccent(accent: string) {
+      this.accent = findAccent(accent).value;
+    },
+    setHighContrast(value: boolean) {
+      this.highContrast = value;
     },
     setReduceMotion(value: boolean) {
       this.reduceMotion = value;

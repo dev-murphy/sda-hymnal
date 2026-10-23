@@ -1,5 +1,140 @@
 @import "tailwindcss";
 
+/* Accent: --accent / --accent-to are set on <html> from the chosen accent
+   (see app/utils/accents.ts); the same two stops make the gradients */
+@theme inline {
+  --color-accent: var(--accent);
+  --color-accent-to: var(--accent-to);
+  /* accent as text, darkened/lightened further in high contrast */
+  --color-accent-text: var(--accent-text);
+  /* translucent accent behind text: search highlights, selection */
+  --color-accent-soft: var(--accent-soft);
+}
+
+/* Themes: the UI is written in Tailwind's neutral/white/black, so each theme
+   redefines that scale instead of every class changing. "white" is the page
+   surface and "black" the text colour, so they swap in dark mode. light-dark()
+   picks by color-scheme, which data-theme sets (auto follows the system). */
+:root {
+  color-scheme: light dark;
+
+  --color-white: light-dark(#fff, oklch(16.5% 0 0));
+  --color-black: light-dark(#000, oklch(97% 0 0));
+  --color-neutral-50: light-dark(oklch(98.5% 0 0), oklch(19% 0 0));
+  --color-neutral-100: light-dark(oklch(97% 0 0), oklch(21.5% 0 0));
+  --color-neutral-200: light-dark(oklch(92.2% 0 0), oklch(26.5% 0 0));
+  --color-neutral-300: light-dark(oklch(87% 0 0), oklch(33% 0 0));
+  --color-neutral-400: light-dark(oklch(70.8% 0 0), oklch(55% 0 0));
+  --color-neutral-500: light-dark(oklch(55.6% 0 0), oklch(64% 0 0));
+  --color-neutral-600: light-dark(oklch(43.9% 0 0), oklch(74% 0 0));
+  --color-neutral-700: light-dark(oklch(37.1% 0 0), oklch(82% 0 0));
+  --color-neutral-800: light-dark(oklch(26.9% 0 0), oklch(89% 0 0));
+  --color-neutral-900: light-dark(oklch(20.5% 0 0), oklch(93% 0 0));
+  --color-neutral-950: light-dark(oklch(14.5% 0 0), oklch(96% 0 0));
+
+  /* amber until the chosen accent is applied */
+  --accent: light-dark(#d97706, #fbbf24);
+  --accent-to: light-dark(#f59e0b, #fcd34d);
+  --accent-text: var(--accent);
+  --accent-soft: color-mix(in oklab, var(--accent) 28%, transparent);
+  /* strength of the decorative background gradients */
+  --accent-wash: 11%;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+/* High contrast: pure black/white, secondary text and borders pulled toward
+   the text colour, stronger accent, no decorative gradients */
+:root[data-contrast="high"] {
+  --color-white: light-dark(#fff, #000);
+  --color-black: light-dark(#000, #fff);
+  --color-neutral-50: light-dark(oklch(97% 0 0), oklch(12% 0 0));
+  --color-neutral-100: light-dark(oklch(94% 0 0), oklch(16% 0 0));
+  --color-neutral-200: light-dark(oklch(86% 0 0), oklch(24% 0 0));
+  --color-neutral-300: light-dark(oklch(55% 0 0), oklch(58% 0 0));
+  --color-neutral-400: light-dark(oklch(38% 0 0), oklch(80% 0 0));
+  --color-neutral-500: light-dark(oklch(32% 0 0), oklch(86% 0 0));
+  --color-neutral-600: light-dark(oklch(26% 0 0), oklch(90% 0 0));
+  --color-neutral-700: light-dark(oklch(22% 0 0), oklch(93% 0 0));
+  --color-neutral-800: light-dark(oklch(16% 0 0), oklch(96% 0 0));
+  --color-neutral-900: light-dark(oklch(10% 0 0), oklch(98% 0 0));
+  --color-neutral-950: light-dark(oklch(6% 0 0), oklch(99% 0 0));
+
+  --accent-text: light-dark(
+    color-mix(in oklab, var(--accent) 60%, #000),
+    color-mix(in oklab, var(--accent) 55%, #fff)
+  );
+  --accent-soft: color-mix(in oklab, var(--accent) 50%, transparent);
+  --accent-wash: 0%;
+}
+
+@layer base {
+  html {
+    background-color: var(--color-white);
+    color: var(--color-black);
+  }
+
+  /* dialogs would otherwise use the browser's Canvas colours */
+  dialog {
+    background-color: var(--color-white);
+    color: var(--color-black);
+  }
+
+  ::selection {
+    background-color: var(--color-accent-soft);
+  }
+
+  :focus-visible {
+    outline-color: var(--color-accent);
+  }
+}
+
+@utility accent-gradient {
+  background-image: linear-gradient(
+    to right,
+    var(--color-accent),
+    var(--color-accent-to)
+  );
+}
+
+/* gradient text; plain accent text in high contrast, where it reads better */
+@utility accent-gradient-text {
+  background-image: linear-gradient(
+    to right,
+    var(--color-accent),
+    var(--color-accent-to)
+  );
+  background-clip: text;
+  color: transparent;
+
+  :root[data-contrast="high"] & {
+    background-image: none;
+    color: var(--color-accent-text);
+  }
+}
+
+/* a soft glow of the accent from the top of a section */
+@utility accent-wash {
+  background-image:
+    radial-gradient(
+      70% 50% at 15% 0%,
+      color-mix(in oklab, var(--color-accent) var(--accent-wash), transparent),
+      transparent
+    ),
+    radial-gradient(
+      60% 45% at 85% 0%,
+      color-mix(in oklab, var(--color-accent-to) var(--accent-wash), transparent),
+      transparent
+    );
+  background-repeat: no-repeat;
+}
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.5s ease;

@@ -250,7 +250,7 @@ watch(rows, () => {
                 >
                   <div class="w-full group font-[Archivo]">
                     <span class="flex items-center gap-x-1">
-                      <span class="group-hover:underline">
+                      <span class="group-hover:underline decoration-accent decoration-2 underline-offset-2">
                         {{ hymn.title }}
                       </span>
                       <Icon
@@ -273,14 +273,14 @@ watch(rows, () => {
                 <NuxtLink
                   v-if="!appStore.hasSubcategories"
                   :to="categoryPath(hymn?.category)"
-                  class="border border-neutral-200 px-2 py-1.5 text-sm text-neutral-400 font-[Archivo] rounded-full"
+                  class="border border-neutral-200 hover:border-accent hover:text-accent-text px-2 py-1.5 text-sm text-neutral-400 font-[Archivo] transition-colors rounded-full"
                 >
                   {{ hymn?.category }}
                 </NuxtLink>
                 <NuxtLink
                   v-else-if="hymn?.subcategory"
                   :to="categoryPath(hymn.category, hymn.subcategory)"
-                  class="border border-neutral-200 px-2 py-1.5 text-sm text-neutral-400 font-[Archivo] rounded-full"
+                  class="border border-neutral-200 hover:border-accent hover:text-accent-text px-2 py-1.5 text-sm text-neutral-400 font-[Archivo] transition-colors rounded-full"
                 >
                   {{ hymn?.subcategory }}
                 </NuxtLink>

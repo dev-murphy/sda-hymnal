@@ -17,7 +17,7 @@ const circumference = computed(() => 2 * Math.PI * radius.value);
       cx="12"
       cy="12"
       :r="radius"
-      stroke="hsl(228, 97%, 42%)"
+      class="stroke-accent"
       :stroke-width="strokeWidth"
       stroke-linecap="round"
       :stroke-dasharray="`${circumference / 4} ${circumference}`"

@@ -26,13 +26,13 @@ function toggle() {
     :disabled="disabled"
     :class="[
       'relative w-9 h-5 shrink-0 p-0.5 transition-colors duration-200 rounded-full disabled:opacity-40 disabled:cursor-not-allowed',
-      modelValue ? 'bg-neutral-800' : 'bg-neutral-300',
+      modelValue ? 'accent-gradient' : 'bg-neutral-300',
     ]"
     @click="toggle"
   >
     <span
       :class="[
-        'block w-4 h-4 bg-white shadow transition-transform duration-200 ease-out rounded-full',
+        'block w-4 h-4 bg-[#fff] shadow transition-transform duration-200 ease-out rounded-full',
         modelValue ? 'translate-x-4' : 'translate-x-0',
       ]"
     />

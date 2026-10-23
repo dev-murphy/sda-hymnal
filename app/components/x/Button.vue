@@ -20,7 +20,7 @@ withDefaults(
     :class="[
       'group flex items-center gap-x-1 font-[Archivo]',
       {
-        'text-neutral-600 disabled:text-neutral-400 disabled:bg-neutral-100 border border-neutral-200 disabled:border-neutral-100  transition-all shadow hover:shadow-md disabled:shadow-none disabled:cursor-not-allowed rounded-md':
+        'text-neutral-600 disabled:text-neutral-400 disabled:bg-neutral-100 border border-neutral-200 enabled:hover:border-accent disabled:border-neutral-100 transition-all shadow hover:shadow-md disabled:shadow-none disabled:cursor-not-allowed rounded-md':
           type === 'raised',
         'flex-row-reverse': iconPosition === 'right',
         'h-[26px] px-1.5': size === 'sm',

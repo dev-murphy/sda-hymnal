@@ -136,7 +136,7 @@ defineExpose({ open });
           tabindex="-1"
           :class="[
             'w-full flex items-baseline gap-x-3 px-3 py-2 text-left rounded-md',
-            { 'bg-neutral-100': resultIndex === activeResult },
+            { 'bg-accent/10': resultIndex === activeResult },
           ]"
           @click="selectResult(result.hymn)"
           @mousemove="activeResult = resultIndex"
@@ -166,7 +166,7 @@ defineExpose({ open });
     <!-- before a search: a hint over the faded logo -->
     <div
       v-else
-      class="relative h-48 grid place-items-center overflow-hidden px-8"
+      class="relative h-48 grid place-items-center overflow-hidden px-8 accent-wash"
     >
       <img
         src="/favicon.svg"

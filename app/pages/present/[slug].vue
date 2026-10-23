@@ -116,7 +116,7 @@ function lineClass(line: number) {
   if (!isHighlighting.value) return undefined;
   const isActive =
     activeLine.value?.stanza === index.value && activeLine.value.line === line;
-  return isActive ? "text-current" : "text-neutral-300";
+  return isActive ? "accent-gradient-text" : "text-neutral-300";
 }
 
 function seekTo(time: number | undefined) {
@@ -197,7 +197,7 @@ useSeoMeta({
       <XTooltip text="Exit (Esc)" direction="bottom" alignment="left">
         <template #default="{ triggerOpen, triggerClose }">
           <button
-            class="grid place-items-center border border-neutral-300 p-1 rounded-md"
+            class="grid place-items-center border border-neutral-300 hover:border-accent p-1 transition-colors rounded-md"
             aria-label="Exit presentation"
             @click="exitPresentation"
             @mouseenter="triggerOpen"
@@ -217,7 +217,7 @@ useSeoMeta({
         <XTooltip :text="`Search hymns (${searchShortcut})`" direction="bottom">
           <template #default="{ triggerOpen, triggerClose }">
             <button
-              class="grid place-items-center border border-neutral-300 p-1 rounded-md"
+              class="grid place-items-center border border-neutral-300 hover:border-accent p-1 transition-colors rounded-md"
               aria-label="Search hymns"
               @click="
                 () => {
@@ -275,7 +275,7 @@ useSeoMeta({
             <button
               command="show-modal"
               commandfor="settings-dialog"
-              class="grid place-items-center border border-neutral-300 p-1 rounded-md"
+              class="grid place-items-center border border-neutral-300 hover:border-accent p-1 transition-colors rounded-md"
               aria-label="Settings"
               @mouseenter="triggerOpen"
               @mouseleave="triggerClose"
@@ -292,7 +292,7 @@ useSeoMeta({
     <main
       ref="stage"
       :class="[
-        'relative grow min-h-0 flex px-6 py-6 sm:px-12',
+        'relative grow min-h-0 flex px-6 py-6 sm:px-12 accent-wash',
         isOversized ? 'overflow-auto' : 'overflow-hidden',
       ]"
       :style="lyricsStyle"
@@ -315,7 +315,7 @@ useSeoMeta({
             v-for="(line, lineIndex) in current.text.split('\n')"
             :key="lineIndex"
             :class="[
-              'block whitespace-pre-wrap transition-colors duration-300',
+              'block w-fit mx-auto whitespace-pre-wrap transition-colors duration-300',
               lineClass(lineIndex),
               { 'cursor-pointer': isSynced },
             ]"
