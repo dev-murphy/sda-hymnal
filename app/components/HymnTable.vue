@@ -133,8 +133,8 @@ watch(rows, () => {
         :options="appStore.getCategories"
         search-placeholder="Search categories"
         clear-label="Clear category"
-        @update:model-value="appStore.setCategory($event.name)"
-        @clear="appStore.setCategory('')"
+        @update:model-value="navigateTo(categoryPath($event.name))"
+        @clear="navigateTo(categoryPath())"
       />
       <FilterChip
         v-if="appStore.hasSubcategories"
@@ -144,8 +144,10 @@ watch(rows, () => {
         placeholder="All subcategories"
         search-placeholder="Search subcategories"
         clear-label="Clear subcategory"
-        @update:model-value="appStore.setSubCategory($event.name)"
-        @clear="appStore.setSubCategory('')"
+        @update:model-value="
+          navigateTo(categoryPath(appStore.selectedCategory?.name, $event.name))
+        "
+        @clear="navigateTo(categoryPath(appStore.selectedCategory?.name))"
       />
     </div>
 
@@ -264,20 +266,20 @@ watch(rows, () => {
                 </NuxtLink>
               </td>
               <td>
-                <button
+                <NuxtLink
                   v-if="!appStore.hasSubcategories"
-                  class="border borer-neutral-200 px-2 py-1.5 text-sm text-neutral-400 font-[Archivo] rounded-full"
-                  @click="hymn && appStore.setCategory(hymn.category)"
+                  :to="categoryPath(hymn?.category)"
+                  class="border border-neutral-200 px-2 py-1.5 text-sm text-neutral-400 font-[Archivo] rounded-full"
                 >
                   {{ hymn?.category }}
-                </button>
-                <button
+                </NuxtLink>
+                <NuxtLink
                   v-else-if="hymn?.subcategory"
-                  class="border borer-neutral-200 px-2 py-1.5 text-sm text-neutral-400 font-[Archivo] rounded-full"
-                  @click="appStore.setSubCategory(hymn.subcategory)"
+                  :to="categoryPath(hymn.category, hymn.subcategory)"
+                  class="border border-neutral-200 px-2 py-1.5 text-sm text-neutral-400 font-[Archivo] rounded-full"
                 >
                   {{ hymn?.subcategory }}
-                </button>
+                </NuxtLink>
               </td>
               <td v-if="appStore.visibility.author">{{ hymn?.author }}</td>
               <td v-if="appStore.visibility.composer">{{ hymn?.composer }}</td>

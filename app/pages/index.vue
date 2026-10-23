@@ -20,8 +20,86 @@ const filterOptions: { label: string; flag: HymnFilterFlag; disabled?: boolean }
   { label: "Recently Viewed", flag: "recentlyViewed" },
 ];
 
+definePageMeta({
+  // a filtered list has its own URL to share and index, e.g.
+  // /categories/Jesus+Christ/sub/Second+Advent
+  alias: [
+    "/categories/:category",
+    "/categories/:category/sub/:subcategory",
+  ],
+  // one key for every alias, so changing the filter doesn't remount the page
+  key: "hymn-list",
+  // unknown categories 404 instead of showing an unfiltered list
+  validate: (route) => {
+    const appStore = useAppStore();
+    const category = fromCategoryParam(route.params.category);
+    const subcategory = fromCategoryParam(route.params.subcategory);
+    if (!category) return true;
+    if (!appStore.findCategory(category)) return false;
+    if (!subcategory) return true;
+    const value = toCategoryValue(subcategory);
+    return appStore
+      .subcategoriesOf(category)
+      .some((option) => option.value === value);
+  },
+});
+
+// the URL is the source of truth for the category filter
+const route = useRoute();
+watch(
+  () => [route.params.category, route.params.subcategory],
+  () => {
+    const category = fromCategoryParam(route.params.category);
+    const subcategory = fromCategoryParam(route.params.subcategory);
+    // only on a change, so coming back to the same list keeps its page
+    if (toCategoryValue(category) !== (appStore.selectedCategory?.value ?? "")) {
+      appStore.setCategory(category);
+    }
+    if (
+      toCategoryValue(subcategory) !==
+      (appStore.selectedSubcategory?.value ?? "")
+    ) {
+      appStore.setSubCategory(subcategory);
+    }
+  },
+  { immediate: true },
+);
+
+const filterName = computed(() => {
+  const category = appStore.selectedCategory?.name;
+  const subcategory = appStore.selectedSubcategory?.name;
+  if (!category) return "";
+  return subcategory ? `${subcategory} (${category})` : category;
+});
+const filterTitle = () =>
+  filterName.value
+    ? `${filterName.value} Hymns | SDA Hymnal`
+    : undefined;
+const filterDescription = () =>
+  filterName.value
+    ? `Browse Seventh-day Adventist hymns in ${filterName.value} - SDA Hymnal`
+    : undefined;
+
 const siteConfig = useSiteConfig();
+useHead({
+  link: [
+    {
+      rel: "canonical",
+      // one form per list, whatever casing or spacing the visitor used
+      href: () =>
+        siteConfig.url +
+        categoryPath(
+          appStore.selectedCategory?.name,
+          appStore.selectedSubcategory?.name,
+        ),
+    },
+  ],
+});
 useSeoMeta({
+  title: filterTitle,
+  ogTitle: filterTitle,
+  description: filterDescription,
+  ogDescription: filterDescription,
   ogImage: {
     url: `${siteConfig.url}/og-image.png`,
     type: "image/png",

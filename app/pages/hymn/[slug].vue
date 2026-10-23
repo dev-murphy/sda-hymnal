@@ -50,21 +50,9 @@ const selectedFont = computed({
   set: (font: Option<string>) => appStore.setFontFamily(font.value),
 });
 
-// back to the hymn list filtered to this hymn's category; a search would hide the filter
-function filterByCategory() {
-  if (!hymn.value) return;
+// the category links go back to the filtered hymn list; a search would hide the filter
+function clearSearch() {
   appStore.searchText = "";
-  appStore.setCategory(hymn.value.category);
-  navigateTo("/");
-}
-
-// subcategories are looked up within the selected category, so set that first
-function filterBySubcategory() {
-  if (!hymn.value?.subcategory) return;
-  appStore.searchText = "";
-  appStore.setCategory(hymn.value.category);
-  appStore.setSubCategory(hymn.value.subcategory);
-  navigateTo("/");
 }
 
 const { y: scrollY } = useWindowScroll({
@@ -345,14 +333,15 @@ defineOgImage("Hymn.takumi", {
               <div class="w-fit flex items-center gap-x-px">
                 <XTooltip text="View hymns in this category">
                   <template #default="{ triggerOpen, triggerClose }">
-                    <button
-                      class="py-1.5 px-3 bg-neutral-200 hover:bg-neutral-300 transition-colors cursor-pointer rounded-l-full"
-                      @click="filterByCategory"
+                    <NuxtLink
+                      :to="categoryPath(hymn?.category)"
+                      class="block py-1.5 px-3 bg-neutral-200 hover:bg-neutral-300 transition-colors cursor-pointer rounded-l-full"
+                      @click="clearSearch"
                       @mouseenter="triggerOpen"
                       @mouseleave="triggerClose"
                     >
                       {{ hymn?.category }}
-                    </button>
+                    </NuxtLink>
                   </template>
                 </XTooltip>
                 <XTooltip
@@ -360,14 +349,15 @@ defineOgImage("Hymn.takumi", {
                   text="View hymns in this subcategory"
                 >
                   <template #default="{ triggerOpen, triggerClose }">
-                    <button
-                      class="relative py-1.5 px-3 bg-neutral-200 hover:bg-neutral-300 transition-colors cursor-pointer rounded-r-full"
-                      @click="filterBySubcategory"
+                    <NuxtLink
+                      :to="categoryPath(hymn.category, hymn.subcategory)"
+                      class="relative block py-1.5 px-3 bg-neutral-200 hover:bg-neutral-300 transition-colors cursor-pointer rounded-r-full"
+                      @click="clearSearch"
                       @mouseenter="triggerOpen"
                       @mouseleave="triggerClose"
                     >
                       {{ hymn.subcategory }}
-                    </button>
+                    </NuxtLink>
                   </template>
                 </XTooltip>
               </div>

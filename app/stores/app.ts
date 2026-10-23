@@ -14,10 +14,6 @@ function getFuse() {
   }));
 }
 
-function toCategoryValue(category: string) {
-  return category.toLowerCase().replace(/\s+/g, "-");
-}
-
 export const useAppStore = defineStore("app", {
   state: () => ({
     hymns: data,
@@ -164,23 +160,36 @@ export const useAppStore = defineStore("app", {
         a.name.localeCompare(b.name),
       );
     },
-    // only the selected category's subcategories; some categories have none
+    // the category's option by name or value, undefined if there is none
+    findCategory(): (category: string) => Option<string> | undefined {
+      return (category) => {
+        const value = toCategoryValue(category);
+        return this.getCategories.find((option) => option.value === value);
+      };
+    },
+    // any category's subcategories, by name or value; some categories have none
+    subcategoriesOf(state) {
+      return (category: string): Option<string>[] => {
+        const categoryValue = toCategoryValue(category);
+        const subcategories = new Map<string, Option<string>>();
+        state.hymns.forEach((hymn) => {
+          if (!hymn.subcategory) return;
+          if (toCategoryValue(hymn.category) !== categoryValue) return;
+          const value = toCategoryValue(hymn.subcategory);
+          if (!subcategories.has(value)) {
+            subcategories.set(value, { name: hymn.subcategory, value });
+          }
+        });
+        return [...subcategories.values()].sort((a, b) =>
+          a.name.localeCompare(b.name),
+        );
+      };
+    },
+    // only the selected category's subcategories
     getSubcategories(state): Option<string>[] {
-      const category = state.selectedCategory;
-      if (!category) return [];
-
-      const subcategories = new Map<string, Option<string>>();
-      state.hymns.forEach((hymn) => {
-        if (!hymn.subcategory) return;
-        if (toCategoryValue(hymn.category) !== category.value) return;
-        const value = toCategoryValue(hymn.subcategory);
-        if (!subcategories.has(value)) {
-          subcategories.set(value, { name: hymn.subcategory, value });
-        }
-      });
-      return [...subcategories.values()].sort((a, b) =>
-        a.name.localeCompare(b.name),
-      );
+      return state.selectedCategory
+        ? this.subcategoriesOf(state.selectedCategory.value)
+        : [];
     },
     hasSubcategories(): boolean {
       return this.getSubcategories.length > 0;
@@ -207,10 +216,7 @@ export const useAppStore = defineStore("app", {
     // pass "" to clear; reuses the getCategories option so the dropdown can match it
     setCategory(category: string) {
       this.paginate.currentPage = 1;
-      const value = toCategoryValue(category);
-      this.selectedCategory = category
-        ? this.getCategories.find((option) => option.value === value)
-        : undefined;
+      this.selectedCategory = category ? this.findCategory(category) : undefined;
       this.selectedSubcategory = undefined;
     },
     // pass "" to clear; same option reuse as setCategory

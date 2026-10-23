@@ -12,6 +12,24 @@ export function slugify(text: string | undefined): string {
     .replace(/-+/g, "-");
 }
 
+// how categories are compared: case and spacing don't matter
+export function toCategoryValue(category: string) {
+  return category.toLowerCase().replace(/[\s+-]+/g, "-");
+}
+
+// e.g. /categories/Jesus+Christ/sub/Second+Advent; no category is the full list
+export function categoryPath(category?: string, subcategory?: string) {
+  if (!category) return "/";
+  const toParam = (name: string) => name.trim().replace(/\s+/g, "+");
+  const path = `/categories/${toParam(category)}`;
+  return subcategory ? `${path}/sub/${toParam(subcategory)}` : path;
+}
+
+// the category name back from a route param, "+" standing in for spaces
+export function fromCategoryParam(param: string | string[] | undefined) {
+  return String(param ?? "").replace(/\+/g, " ");
+}
+
 export function formatVerseType(verseType: string) {
   return verseType.replaceAll('_', ' ');
 }
