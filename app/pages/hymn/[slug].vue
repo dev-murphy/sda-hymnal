@@ -50,6 +50,23 @@ const selectedFont = computed({
   set: (font: Option<string>) => appStore.setFontFamily(font.value),
 });
 
+// back to the hymn list filtered to this hymn's category; a search would hide the filter
+function filterByCategory() {
+  if (!hymn.value) return;
+  appStore.searchText = "";
+  appStore.setCategory(hymn.value.category);
+  navigateTo("/");
+}
+
+// subcategories are looked up within the selected category, so set that first
+function filterBySubcategory() {
+  if (!hymn.value?.subcategory) return;
+  appStore.searchText = "";
+  appStore.setCategory(hymn.value.category);
+  appStore.setSubCategory(hymn.value.subcategory);
+  navigateTo("/");
+}
+
 const { y: scrollY } = useWindowScroll({
   behavior: () => (appStore.reduceMotion ? "instant" : "smooth"),
 });
@@ -296,10 +313,10 @@ defineOgImage("Hymn.takumi", {
                 class="absolute left-0 w-max text-sm text-neutral-400"
                 :style="hymnNoStyle"
               >
-                Hymn #{{ String(hymn.hymn_number).padStart(3, "0") }}
+                Hymn #{{ String(hymn?.hymn_number).padStart(3, "0") }}
               </p>
               <h1 :class="{ truncate: collapse > 0 }" :style="titleStyle">
-                {{ hymn.title }}
+                {{ hymn?.title }}
               </h1>
             </div>
 
@@ -321,47 +338,64 @@ defineOgImage("Hymn.takumi", {
               class="flex flex-wrap items-center gap-1 pt-2 text-xs"
             >
               <span
-                v-if="hymn.key"
+                v-if="hymn?.key"
                 class="bg-neutral-200 py-1.5 px-3 rounded-full"
                 >{{ hymn.key }}</span
               >
-              <div class="w-fit flex items-center bg-neutral-200 rounded-full">
-                <p class="py-1.5 px-3">{{ hymn.category }}</p>
-                <p
-                  v-if="hymn.subcategory"
-                  :class="[
-                    'py-1.5 px-3',
-                    { 'border-l border-white': hymn.subcategory },
-                  ]"
+              <div class="w-fit flex items-center gap-x-px">
+                <XTooltip text="View hymns in this category">
+                  <template #default="{ triggerOpen, triggerClose }">
+                    <button
+                      class="py-1.5 px-3 bg-neutral-200 hover:bg-neutral-300 transition-colors cursor-pointer rounded-l-full"
+                      @click="filterByCategory"
+                      @mouseenter="triggerOpen"
+                      @mouseleave="triggerClose"
+                    >
+                      {{ hymn?.category }}
+                    </button>
+                  </template>
+                </XTooltip>
+                <XTooltip
+                  v-if="hymn?.subcategory"
+                  text="View hymns in this subcategory"
                 >
-                  {{ hymn.subcategory }}
-                </p>
+                  <template #default="{ triggerOpen, triggerClose }">
+                    <button
+                      class="relative py-1.5 px-3 bg-neutral-200 hover:bg-neutral-300 transition-colors cursor-pointer rounded-r-full"
+                      @click="filterBySubcategory"
+                      @mouseenter="triggerOpen"
+                      @mouseleave="triggerClose"
+                    >
+                      {{ hymn.subcategory }}
+                    </button>
+                  </template>
+                </XTooltip>
               </div>
               <div class="w-fit flex items-center bg-neutral-200 rounded-full">
-                <XTooltip v-if="hymn.author" text="Author">
+                <XTooltip v-if="hymn?.author" text="Author">
                   <template #default="{ triggerOpen, triggerClose }">
                     <p
                       class="py-1.5 px-3"
                       @mouseenter="triggerOpen"
                       @mouseleave="triggerClose"
                     >
-                      {{ hymn.author }}
+                      {{ hymn?.author }}
                     </p>
                   </template>
                 </XTooltip>
-                <XTooltip v-if="hymn.composer" text="Composer">
+                <XTooltip v-if="hymn?.composer" text="Composer">
                   <template #default="{ triggerOpen, triggerClose }">
                     <p
                       :class="[
                         'py-1.5 px-3',
                         {
-                          'border-l border-white': hymn.composer && hymn.author,
+                          'border-l border-white': hymn?.composer && hymn?.author,
                         },
                       ]"
                       @mouseenter="triggerOpen"
                       @mouseleave="triggerClose"
                     >
-                      {{ hymn.composer }}
+                      {{ hymn?.composer }}
                     </p>
                   </template>
                 </XTooltip>
@@ -405,7 +439,7 @@ defineOgImage("Hymn.takumi", {
     >
       <div
         v-for="(stanza, index) in expandedHymns"
-        :key="`${hymn.hymn_number}-verse-${index}`"
+        :key="`${hymn?.hymn_number}-verse-${index}`"
         class="space-y-1"
       >
         <p

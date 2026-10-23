@@ -14,8 +14,6 @@ function setSort(sort: string) {
   appStore.setSort(sort, "asc");
 }
 
-// "Viewed" times are relative to when the rows last changed (load, sort,
-// page, filter, search), not a live clock
 const now = ref(new Date());
 
 const selected = computed({
@@ -125,13 +123,31 @@ watch(rows, () => {
 <template>
   <!-- Desktop Table -->
   <div class="w-full max-w-310 mx-auto">
-    <p
+    <div
       v-if="appStore.selectedCategory"
-      class="w-fit flex items-center gap-x-1 border border-neutral-300 mb-2 px-2 py-0.5 rounded-full"
-      @click="appStore.setCategory('')"
+      class="flex flex-wrap items-center gap-2 mb-2"
     >
-      {{ appStore.selectedCategory }} <Icon name="tabler:x" size="15" />
-    </p>
+      <FilterChip
+        id="hymn-category-dropdown"
+        :model-value="appStore.selectedCategory"
+        :options="appStore.getCategories"
+        search-placeholder="Search categories"
+        clear-label="Clear category"
+        @update:model-value="appStore.setCategory($event.name)"
+        @clear="appStore.setCategory('')"
+      />
+      <FilterChip
+        v-if="appStore.hasSubcategories"
+        id="hymn-subcategory-dropdown"
+        :model-value="appStore.selectedSubcategory"
+        :options="appStore.getSubcategories"
+        placeholder="All subcategories"
+        search-placeholder="Search subcategories"
+        clear-label="Clear subcategory"
+        @update:model-value="appStore.setSubCategory($event.name)"
+        @clear="appStore.setSubCategory('')"
+      />
+    </div>
 
     <div class="relative">
       <div
@@ -166,7 +182,7 @@ watch(rows, () => {
               <th class="w-52 text-left">
                 <div class="flex items-center gap-x-1 select-none">
                   {{
-                    appStore.selectedCategory === ""
+                    !appStore.hasSubcategories
                       ? "Category"
                       : "Subcategory"
                   }}
@@ -197,7 +213,10 @@ watch(rows, () => {
                 </div>
               </th>
               <th v-if="appStore.visibility.key" class="w-24">Key</th>
-              <th v-if="appStore.paginate.filter.flags.recentlyViewed" class="w-32">
+              <th
+                v-if="appStore.paginate.filter.flags.recentlyViewed"
+                class="w-32"
+              >
                 <div
                   class="flex items-center gap-x-1 select-none"
                   @click="setSort('viewed')"
@@ -246,16 +265,16 @@ watch(rows, () => {
               </td>
               <td>
                 <button
-                  v-if="!appStore.selectedCategory"
+                  v-if="!appStore.hasSubcategories"
                   class="border borer-neutral-200 px-2 py-1.5 text-sm text-neutral-400 font-[Archivo] rounded-full"
                   @click="hymn && appStore.setCategory(hymn.category)"
                 >
                   {{ hymn?.category }}
                 </button>
                 <button
-                  v-else
+                  v-else-if="hymn?.subcategory"
                   class="border borer-neutral-200 px-2 py-1.5 text-sm text-neutral-400 font-[Archivo] rounded-full"
-                  @click="hymn && appStore.setCategory(hymn.category)"
+                  @click="appStore.setSubCategory(hymn.subcategory)"
                 >
                   {{ hymn?.subcategory }}
                 </button>
@@ -271,10 +290,23 @@ watch(rows, () => {
               >
                 <time
                   v-if="hymn && appStore.recentlyViewed[hymn.hymn_number]"
-                  :datetime="new Date(appStore.recentlyViewed[hymn.hymn_number]!).toISOString()"
-                  :title="new Date(appStore.recentlyViewed[hymn.hymn_number]!).toLocaleString()"
+                  :datetime="
+                    new Date(
+                      appStore.recentlyViewed[hymn.hymn_number]!,
+                    ).toISOString()
+                  "
+                  :title="
+                    new Date(
+                      appStore.recentlyViewed[hymn.hymn_number]!,
+                    ).toLocaleString()
+                  "
                 >
-                  {{ timeAgo(appStore.recentlyViewed[hymn.hymn_number]!, now.getTime()) }}
+                  {{
+                    timeAgo(
+                      appStore.recentlyViewed[hymn.hymn_number]!,
+                      now.getTime(),
+                    )
+                  }}
                 </time>
               </td>
               <td>
@@ -310,7 +342,9 @@ watch(rows, () => {
                     id="hymn-menu"
                     :model-value="noMenuSelection"
                     :options="menuFor(hymn!.hymn_number)"
-                    @update:model-value="handleMenuAction($event, hymn!.hymn_number)"
+                    @update:model-value="
+                      handleMenuAction($event, hymn!.hymn_number)
+                    "
                     alignment="right"
                     text-styles="text-left text-neutral-600 font-[Archivo]"
                     :direction="
@@ -384,7 +418,9 @@ watch(rows, () => {
           {{
             (appStore.paginate.currentPage - 1) * appStore.paginate.limit + 1
           }}/{{ appStore.paginate.currentPage * appStore.paginate.limit }}
-          <span v-if="appStore.selectedCategory">(of 695)</span>
+          <span v-if="appStore.selectedCategory"
+            >(of {{ appStore.filteredHymns.length }})</span
+          >
         </div>
         <XButton
           button-text="Next"
@@ -402,7 +438,10 @@ watch(rows, () => {
 <style scoped>
 .reveal-enter-active,
 .reveal-leave-active {
-  transition: opacity 0.5s ease, transform 0.5s ease-in-out, filter 0.5s ease-out;
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease-in-out,
+    filter 0.5s ease-out;
 }
 
 .reveal-enter-from,

@@ -14,6 +14,10 @@ function getFuse() {
   }));
 }
 
+function toCategoryValue(category: string) {
+  return category.toLowerCase().replace(/\s+/g, "-");
+}
+
 export const useAppStore = defineStore("app", {
   state: () => ({
     hymns: data,
@@ -24,6 +28,8 @@ export const useAppStore = defineStore("app", {
     theme: "auto" as Theme,
     reduceMotion: false,
     favorites: [] as number[],
+    selectedCategory: undefined as Option<string> | undefined,
+    selectedSubcategory: undefined as Option<string> | undefined,
     // hymn number -> when it was last viewed (ms)
     recentlyViewed: {} as Record<number, number>,
     visibility: {
@@ -38,8 +44,6 @@ export const useAppStore = defineStore("app", {
       currentPage: 1,
       offset: 0,
       filter: {
-        category: "",
-        subcategory: "",
         flags: {
           recentlyAdded: false,
           recentlyViewed: false,
@@ -47,7 +51,7 @@ export const useAppStore = defineStore("app", {
         } as Record<HymnFilterFlag, boolean>,
       },
     },
-    searchText: ""
+    searchText: "",
   }),
   getters: {
     getSelectedHymn(state) {
@@ -56,11 +60,20 @@ export const useAppStore = defineStore("app", {
       );
     },
     filteredHymns(state) {
-      const { category, flags } = state.paginate.filter;
+      const { flags } = state.paginate.filter;
+      const category = state.selectedCategory;
+      const subcategory = state.selectedSubcategory;
       const favorites = new Set(state.favorites);
 
       return state.hymns.filter((hymn) => {
-        if (category !== "" && hymn.category !== category) return false;
+        if (category && toCategoryValue(hymn.category) !== category.value)
+          return false;
+        if (
+          subcategory &&
+          (!hymn.subcategory ||
+            toCategoryValue(hymn.subcategory) !== subcategory.value)
+        )
+          return false;
         if (flags.favorites && !favorites.has(hymn.hymn_number)) return false;
         if (flags.recentlyViewed && !(hymn.hymn_number in state.recentlyViewed))
           return false;
@@ -114,9 +127,6 @@ export const useAppStore = defineStore("app", {
         state.paginate.currentPage * state.paginate.limit,
       );
     },
-    selectedCategory(state) {
-      return state.paginate.filter.category;
-    },
     // stanza labels stay proportionally smaller than the text (14px at the default 16px)
     stanzaLabelFontSize(state): number {
       return state.fontSize * 0.875;
@@ -124,7 +134,6 @@ export const useAppStore = defineStore("app", {
     totalPages(state): number {
       return Math.ceil(this.filteredHymns.length / state.paginate.limit);
     },
-
     // current hymn functions
     currentHymn(state) {
       return (hymnNo: number) => {
@@ -140,6 +149,41 @@ export const useAppStore = defineStore("app", {
       return (hymnNo: number) => {
         return state.hymns.find((hymn) => hymn.hymn_number === hymnNo + 1);
       };
+    },
+    // categories
+    getCategories(state): Option<string>[] {
+      // keyed by value: a Set of objects compares by reference and never dedupes
+      const categories = new Map<string, Option<string>>();
+      state.hymns.forEach((hymn) => {
+        const value = toCategoryValue(hymn.category);
+        if (!categories.has(value)) {
+          categories.set(value, { name: hymn.category, value });
+        }
+      });
+      return [...categories.values()].sort((a, b) =>
+        a.name.localeCompare(b.name),
+      );
+    },
+    // only the selected category's subcategories; some categories have none
+    getSubcategories(state): Option<string>[] {
+      const category = state.selectedCategory;
+      if (!category) return [];
+
+      const subcategories = new Map<string, Option<string>>();
+      state.hymns.forEach((hymn) => {
+        if (!hymn.subcategory) return;
+        if (toCategoryValue(hymn.category) !== category.value) return;
+        const value = toCategoryValue(hymn.subcategory);
+        if (!subcategories.has(value)) {
+          subcategories.set(value, { name: hymn.subcategory, value });
+        }
+      });
+      return [...subcategories.values()].sort((a, b) =>
+        a.name.localeCompare(b.name),
+      );
+    },
+    hasSubcategories(): boolean {
+      return this.getSubcategories.length > 0;
     },
   },
   actions: {
@@ -160,13 +204,22 @@ export const useAppStore = defineStore("app", {
       this.paginate.sort = sort;
       this.paginate.order = order;
     },
+    // pass "" to clear; reuses the getCategories option so the dropdown can match it
     setCategory(category: string) {
       this.paginate.currentPage = 1;
-      this.paginate.filter.category = category;
+      const value = toCategoryValue(category);
+      this.selectedCategory = category
+        ? this.getCategories.find((option) => option.value === value)
+        : undefined;
+      this.selectedSubcategory = undefined;
     },
+    // pass "" to clear; same option reuse as setCategory
     setSubCategory(subcategory: string) {
       this.paginate.currentPage = 1;
-      this.paginate.filter.subcategory = subcategory;
+      const value = toCategoryValue(subcategory);
+      this.selectedSubcategory = subcategory
+        ? this.getSubcategories.find((option) => option.value === value)
+        : undefined;
     },
     toggleFilterFlag(flag: HymnFilterFlag) {
       this.paginate.currentPage = 1;
