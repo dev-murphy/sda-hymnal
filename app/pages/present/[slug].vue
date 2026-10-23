@@ -185,6 +185,19 @@ useEventListener("keydown", (event: KeyboardEvent) => {
 useSeoMeta({
   title: () =>
     `Presenting ${hymn.value?.hymn_number} - ${hymn.value?.title} | SDA Hymnal`,
+  // the same lyrics as the hymn page, which is the one search engines should show
+  robots: "noindex, follow",
+});
+
+const siteConfig = useSiteConfig();
+useHead({
+  link: [
+    {
+      rel: "canonical",
+      href: () =>
+        `${siteConfig.url}/hymn/${hymnPath(hymnNo.value, hymn.value?.title)}`,
+    },
+  ],
 });
 </script>
 

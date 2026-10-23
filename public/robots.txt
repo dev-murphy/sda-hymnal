@@ -1,2 +1,4 @@
 User-Agent: *
 Disallow:
+
+Sitemap: https://sda-hymnal.zcodes.dev/sitemap.xml

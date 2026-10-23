@@ -1,6 +1,25 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import { FONTS } from "./app/utils/fonts";
+import { categoryPath, slugify } from "./app/utils/index";
+import { data as hymns } from "./app/assets/json/hymns.json";
 import tailwindcss from "@tailwindcss/vite";
+
+// hymn and category pages come from route params, so the sitemap can't find
+// them on its own: one URL per hymn, category and subcategory
+function sitemapUrls() {
+  const hymnUrls = hymns.map(
+    (hymn) => `/hymn/${hymn.hymn_number}-${slugify(hymn.title)}`,
+  );
+  const categoryUrls = new Set<string>();
+  for (const hymn of hymns) {
+    categoryUrls.add(categoryPath(hymn.category));
+    if (hymn.subcategory) {
+      categoryUrls.add(categoryPath(hymn.category, hymn.subcategory));
+    }
+  }
+  // already URL-safe; left alone so "+" isn't escaped and matches the canonical link
+  return [...hymnUrls, ...categoryUrls].map((loc) => ({ loc, _encoded: true }));
+}
 
 export default defineNuxtConfig({
   modules: [
@@ -9,6 +28,7 @@ export default defineNuxtConfig({
     "@pinia/nuxt",
     "@vueuse/nuxt/module",
     "nuxt-og-image",
+    "@nuxtjs/sitemap",
   ],
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
@@ -23,12 +43,24 @@ export default defineNuxtConfig({
       htmlAttrs: {
         lang: "en",
       },
+      meta: [
+        // Google Search Console ownership
+        {
+          name: "google-site-verification",
+          content: "7jfiGMzwRmL54y9q1Mflw1ynuH4XBHY3aAk-xIMpg_g",
+        },
+      ],
       link: [
         { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
         { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32x32.png" },
         { rel: "icon", type: "image/png", sizes: "96x96", href: "/favicon-96x96.png" },
       ],
     },
+  },
+  sitemap: {
+    urls: sitemapUrls,
+    // presenting is the hymn page again, full screen; the hymn page is the one to index
+    exclude: ["/present/**"],
   },
   // Website Config for OG images
   site: {

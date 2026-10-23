@@ -74,11 +74,11 @@ const filterName = computed(() => {
 const filterTitle = () =>
   filterName.value
     ? `${filterName.value} Hymns | SDA Hymnal`
-    : undefined;
+    : "SDA Hymnal Online – Hymn Lyrics and Audio";
 const filterDescription = () =>
   filterName.value
     ? `Browse Seventh-day Adventist hymns in ${filterName.value} - SDA Hymnal`
-    : undefined;
+    : `Explore all ${appStore.hymns.length} hymns of the Seventh-day Adventist Hymnal. Search by number, title, or lyrics, and listen to recordings of every hymn.`;
 
 const searchInputRef = useTemplateRef<HTMLInputElement>("search-input");
 const { label: searchShortcut } = useShortcut("k", () =>

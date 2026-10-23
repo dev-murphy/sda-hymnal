@@ -9,17 +9,16 @@ const getHymnNo = computed(() => {
   return routeSegments[0] ? parseInt(routeSegments[0]) : NaN;
 });
 
+const hymn = computed(() =>
+  isNaN(getHymnNo.value) ? undefined : appStore.currentHymn(getHymnNo.value),
+);
+// a real 404, so search engines don't index an empty hymn page
+if (!hymn.value) {
+  throw createError({ statusCode: 404, statusMessage: "Hymn not found" });
+}
+
 appStore.setCurrentlyPlayedHymns(getHymnNo.value);
 appStore.addRecentlyViewed(getHymnNo.value);
-
-const hymn = computed(() => {
-  if (isNaN(getHymnNo.value)) {
-    createError("Page Not Found");
-    return;
-  }
-
-  return appStore.currentHymn(getHymnNo.value);
-});
 
 const expandedHymns = computed(() => {
   const stanzas = hymn.value?.stanzas;
@@ -249,14 +248,26 @@ const author = computed(() => {
   return hymn.value?.author ? " by " + hymn.value.author : "";
 });
 
+const seoTitle = () =>
+  `Hymn ${hymn.value?.hymn_number}: ${hymn.value?.title} | SDA Hymnal`;
+const seoDescription = () =>
+  `Lyrics and audio for hymn #${hymn.value?.hymn_number}, ${hymn.value?.title}${author.value}, from the Seventh-day Adventist Hymnal.`;
 useSeoMeta({
-  title: () => `${hymn.value?.hymn_number} - ${hymn.value?.title} | SDA Hymnal`,
-  description: () =>
-    `Read the lyrics of hymn #${hymn.value?.hymn_number}, ${hymn.value?.title}${author.value} - SDA Hymnal`,
-  ogTitle: () =>
-    `${hymn.value?.hymn_number} - ${hymn.value?.title} | SDA Hymnal`,
-  ogDescription: () =>
-    `Read the lyrics of hymn #${hymn.value?.hymn_number}, ${hymn.value?.title}${author.value} - SDA Hymnal`,
+  title: seoTitle,
+  description: seoDescription,
+  ogTitle: seoTitle,
+  ogDescription: seoDescription,
+});
+
+// one URL per hymn, however the slug after the number was typed
+const siteConfig = useSiteConfig();
+useHead({
+  link: [
+    {
+      rel: "canonical",
+      href: () => `${siteConfig.url}${hymnPath(hymn.value)}`,
+    },
+  ],
 });
 
 defineOgImage("Hymn.takumi", {
